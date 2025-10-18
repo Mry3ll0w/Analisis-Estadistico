@@ -1,0 +1,64 @@
+---
+title: "A1"
+author: "Antonio Roldán Andrade"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(readxl)
+library(dplyr)
+
+```
+
+## Disclaimer
+Este es el documento de resolución de la actividad 1 para la asignatura de 
+Análisis Estadístico.
+
+# 1. Estructura de los datos
+
+## 1.1 Diccionario de los datos
+
+```{r}
+
+# Cargamos en primer lugar el WorldSustainabilty
+csv_location <- "WorldSustainabilityDataset.csv"
+worldSustainabiltyDataSet <- read.csv(csv_location, sep = ",")
+
+# Cargamos a continuación el DataDictonary
+# Para cargar el dataset usamos la libreria readxl ==> install.packages("readxl")
+# Realizamos la carga en la parte superior del código, limpieza
+
+xlsx_location <- "Data_Dictionary.xlsx"
+data_dictionaryDataSet <- read_excel(xlsx_location)
+
+
+# Tabla 1 ==> ODS | Codigo Variable/Indicador | Descripcion
+
+table1 <- data_dictionaryDataSet %>%
+  select(`Associated SDG GOAL`, Code, Description)
+# Now we get the data from the WordldSustainability
+
+print(table1)
+
+table2 <- data_dictionaryDataSet %>%
+  select(`Associated SDG GOAL`, Description)
+
+print(table2)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
