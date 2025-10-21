@@ -5,10 +5,12 @@ date: "`r Sys.Date()`"
 output: html_document
 ---
 
-```{r}
+```{r, echo=FALSE,results='hide', include=FALSE}
 #knitr::opts_chunk$set(echo = TRUE)
 library(readxl)
 library(dplyr)
+library(stringr)
+library(skimr) 
 
 ```
 
@@ -19,8 +21,8 @@ Análisis Estadístico.
 # 1. Estructura de los datos
 
 ## 1.1 Diccionario de los datos
-
-```{r}
+En este apartado simplemente realizamos la carga de datos y una pequeña ordenacion.
+```{r, echo=TRUE}
 
 # Cargamos en primer lugar el WorldSustainabilty
 csv_location <- "WorldSustainabilityDataset.csv"
@@ -38,24 +40,96 @@ data_dictionaryDataSet <- read_excel(xlsx_location)
 
 table1 <- data_dictionaryDataSet %>%
   select(`Associated SDG GOAL`, Code, Description)
-# Now we get the data from the WordldSustainability
+
+# ODS | Descripcion
 table2 <- data_dictionaryDataSet %>%
   select(`Associated SDG GOAL`, Description)
 
-# Now we Sort the columns
+# Ordenamos y renombro por comodidad.
 table1 <- table1 %>% arrange(`Associated SDG GOAL`)
 table2 <- table2 %>% arrange(`Associated SDG GOAL`)
 
+table1 <- table1 %>% rename( SDG = `Associated SDG GOAL`)
+table2 <- table2 %>% rename( SDG = `Associated SDG GOAL`)
 ```
 
+## 1.2 Fichero de datos
+
+Renombramos de forma manual Country y Country Code ya que no estan en 
+el diccionario
+```{r,results='hide', include=FALSE}
+
+worldSustainabiltyDataSet <- worldSustainabiltyDataSet %>%
+  rename(Country = `Country.Name`)
+
+worldSustainabiltyDataSet<- worldSustainabiltyDataSet %>% 
+  rename(CountryCode = `Country.Code`)
+
+# Recorremos los nombres y sustitumos basandonos en los códigos
+# de Dictionary
+
+currColNames <- names(worldSustainabiltyDataSet)
+
+updateCurrNames <- function(newColName, currColNames){
+# Primero obtenemos los códigos en base al campo field
+regimeField_Code <- data_dictionaryDataSet %>%
+  filter(str_detect(Field,newColName)) %>%
+  select(Code,Field)
+
+# Ahora sustituimos por la nueva 
+currColNames[grep(regimeField_Code$Code, currColNames)]<- newColName
+  return (currColNames)
+}
+
+# Usamos la funcion 
+currColNames <-  updateCurrNames('Regime', currColNames)
+
+currColNames <- updateCurrNames('Income',currColNames)
+
+currColNames <- updateCurrNames('Region', currColNames)
+
+names(worldSustainabiltyDataSet) <- currColNames
+
+
+```
+
+```{r, echo=TRUE}
+names(worldSustainabiltyDataSet)
+
+```
+
+# 2 Tipos de datos y Posibles Inconsistencias
+
+
+## 2.1 Variables Cuantitativas
+
+Comenzaremos comprobando los valores centinelas y los valores nulos o erroneos posibles.
+```{r}
+# Comenzamos solo por los null
+worldSustainabiltyDataSet <- worldSustainabiltyDataSet %>% replace(.=="NULL", NA)
+```
+
+```{r, include=FALSE}
+
+# Sustituimos por todas las variables
+
+worldSustainabiltyDataSet <- worldSustainabiltyDataSet %>% replace(.=="N/A", NA)
+
+worldSustainabiltyDataSet <- worldSustainabiltyDataSet %>% replace(.=="-", NA)
+
+worldSustainabiltyDataSet <- worldSustainabiltyDataSet %>% replace(.=="NA", NA)
+
+worldSustainabiltyDataSet <- worldSustainabiltyDataSet %>% replace(.=="", NA)
+
+worldSustainabiltyDataSet <- worldSustainabiltyDataSet %>% replace(.=="9999", NA)
+
+worldSustainabiltyDataSet <- worldSustainabiltyDataSet %>% replace(.=="Unknown", NA)
 
 
 
+```
 
-
-
-
-
+## 2.2 Variables cuantitativas
 
 
 

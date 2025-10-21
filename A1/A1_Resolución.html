@@ -11,7 +11,7 @@
 
 <meta name="author" content="Antonio Roldán Andrade" />
 
-<meta name="date" content="2025-10-18" />
+<meta name="date" content="2025-10-21" />
 
 <title>A1</title>
 
@@ -352,22 +352,11 @@ display: none;
 
 <h1 class="title toc-ignore">A1</h1>
 <h4 class="author">Antonio Roldán Andrade</h4>
-<h4 class="date">2025-10-18</h4>
+<h4 class="date">2025-10-21</h4>
 
 </div>
 
 
-<pre class="r"><code>#knitr::opts_chunk$set(echo = TRUE)
-library(readxl)
-library(dplyr)</code></pre>
-<pre><code>## 
-## Adjuntando el paquete: &#39;dplyr&#39;</code></pre>
-<pre><code>## The following objects are masked from &#39;package:stats&#39;:
-## 
-##     filter, lag</code></pre>
-<pre><code>## The following objects are masked from &#39;package:base&#39;:
-## 
-##     intersect, setdiff, setequal, union</code></pre>
 <div id="disclaimer" class="section level2">
 <h2>Disclaimer</h2>
 <p>Este es el documento de resolución de la actividad 1 para la
@@ -377,6 +366,8 @@ asignatura de Análisis Estadístico.</p>
 <h1>1. Estructura de los datos</h1>
 <div id="diccionario-de-los-datos" class="section level2">
 <h2>1.1 Diccionario de los datos</h2>
+<p>En este apartado simplemente realizamos la carga de datos y una
+pequeña ordenacion.</p>
 <pre class="r"><code># Cargamos en primer lugar el WorldSustainabilty
 csv_location &lt;- &quot;WorldSustainabilityDataset.csv&quot;
 worldSustainabiltyDataSet &lt;- read.csv(csv_location, sep = &quot;,&quot;)
@@ -393,13 +384,90 @@ data_dictionaryDataSet &lt;- read_excel(xlsx_location)
 
 table1 &lt;- data_dictionaryDataSet %&gt;%
   select(`Associated SDG GOAL`, Code, Description)
-# Now we get the data from the WordldSustainability
+
+# ODS | Descripcion
 table2 &lt;- data_dictionaryDataSet %&gt;%
   select(`Associated SDG GOAL`, Description)
 
-# Now we Sort the columns
+# Ordenamos y renombro por comodidad.
 table1 &lt;- table1 %&gt;% arrange(`Associated SDG GOAL`)
-table2 &lt;- table2 %&gt;% arrange(`Associated SDG GOAL`)</code></pre>
+table2 &lt;- table2 %&gt;% arrange(`Associated SDG GOAL`)
+
+table1 &lt;- table1 %&gt;% rename( SDG = `Associated SDG GOAL`)
+table2 &lt;- table2 %&gt;% rename( SDG = `Associated SDG GOAL`)</code></pre>
+</div>
+<div id="fichero-de-datos" class="section level2">
+<h2>1.2 Fichero de datos</h2>
+<p>Renombramos de forma manual Country y Country Code ya que no estan en
+el diccionario</p>
+<pre class="r"><code>names(worldSustainabiltyDataSet)</code></pre>
+<pre><code>##  [1] &quot;Country&quot;                                                                                            
+##  [2] &quot;CountryCode&quot;                                                                                        
+##  [3] &quot;Year&quot;                                                                                               
+##  [4] &quot;Access.to.electricity....of.population....EG.ELC.ACCS.ZS&quot;                                           
+##  [5] &quot;Adjusted.net.national.income.per.capita..annual...growth....NY.ADJ.NNTY.PC.KD.ZG&quot;                   
+##  [6] &quot;Adjusted.net.savings..excluding.particulate.emission.damage....of.GNI....NY.ADJ.SVNX.GN.ZS&quot;         
+##  [7] &quot;Adjusted.savings..carbon.dioxide.damage....of.GNI....NY.ADJ.DCO2.GN.ZS&quot;                             
+##  [8] &quot;Adjusted.savings..natural.resources.depletion....of.GNI....NY.ADJ.DRES.GN.ZS&quot;                       
+##  [9] &quot;Adjusted.savings..net.forest.depletion....of.GNI....NY.ADJ.DFOR.GN.ZS&quot;                              
+## [10] &quot;Adjusted.savings..particulate.emission.damage....of.GNI....NY.ADJ.DPEM.GN.ZS&quot;                       
+## [11] &quot;Automated.teller.machines..ATMs...per.100.000.adults....FB.ATM.TOTL.P5&quot;                             
+## [12] &quot;Broad.money....of.GDP....FM.LBL.BMNY.GD.ZS&quot;                                                         
+## [13] &quot;Children.out.of.school....of.primary.school.age....SE.PRM.UNER.ZS&quot;                                  
+## [14] &quot;Compulsory.education..duration..years....SE.COM.DURS&quot;                                               
+## [15] &quot;Cost.of.business.start.up.procedures..female....of.GNI.per.capita....IC.REG.COST.PC.FE.ZS&quot;          
+## [16] &quot;Cost.of.business.start.up.procedures..male....of.GNI.per.capita....IC.REG.COST.PC.MA.ZS&quot;            
+## [17] &quot;Exports.of.goods.and.services....of.GDP....NE.EXP.GNFS.ZS&quot;                                          
+## [18] &quot;Final.consumption.expenditure....of.GDP....NE.CON.TOTL.ZS&quot;                                          
+## [19] &quot;GDP..current.US.....NY.GDP.MKTP.CD&quot;                                                                 
+## [20] &quot;GDP.per.capita..current.US.....NY.GDP.PCAP.CD&quot;                                                      
+## [21] &quot;General.government.final.consumption.expenditure....of.GDP....NE.CON.GOVT.ZS&quot;                       
+## [22] &quot;Gross.national.expenditure....of.GDP....NE.DAB.TOTL.ZS&quot;                                             
+## [23] &quot;Gross.savings....of.GDP....NY.GNS.ICTR.ZS&quot;                                                          
+## [24] &quot;Imports.of.goods.and.services....of.GDP....NE.IMP.GNFS.ZS&quot;                                          
+## [25] &quot;Inflation..consumer.prices..annual......FP.CPI.TOTL.ZG&quot;                                             
+## [26] &quot;Primary.completion.rate..total....of.relevant.age.group....SE.PRM.CMPT.ZS&quot;                          
+## [27] &quot;Proportion.of.seats.held.by.women.in.national.parliaments.......SG.GEN.PARL.ZS&quot;                     
+## [28] &quot;Pupil.teacher.ratio..primary...SE.PRM.ENRL.TC.ZS&quot;                                                   
+## [29] &quot;Renewable.electricity.output....of.total.electricity.output....EG.ELC.RNEW.ZS&quot;                      
+## [30] &quot;Renewable.energy.consumption....of.total.final.energy.consumption....EG.FEC.RNEW.ZS&quot;                
+## [31] &quot;School.enrollment..preprimary....gross....SE.PRE.ENRR&quot;                                              
+## [32] &quot;School.enrollment..primary....gross....SE.PRM.ENRR&quot;                                                 
+## [33] &quot;School.enrollment..secondary....gross....SE.SEC.ENRR&quot;                                               
+## [34] &quot;Trade....of.GDP....NE.TRD.GNFS.ZS&quot;                                                                  
+## [35] &quot;Women.Business.and.the.Law.Index.Score..scale.1.100....SG.LAW.INDX&quot;                                 
+## [36] &quot;Prevalence.of.undernourishment.......SN_ITK_DEFC&quot;                                                   
+## [37] &quot;Proportion.of.population.below.international.poverty.line.......SI_POV_DAY1&quot;                        
+## [38] &quot;Proportion.of.population.covered.by.at.least.a.2G.mobile.network.......IT_MOB_2GNTWK&quot;               
+## [39] &quot;Proportion.of.population.covered.by.at.least.a.3G.mobile.network.......IT_MOB_3GNTWK&quot;               
+## [40] &quot;Proportion.of.population.using.basic.drinking.water.services.......SP_ACS_BSRVH2O&quot;                  
+## [41] &quot;Unemployment.rate..male.......SL_TLF_UEM&quot;                                                           
+## [42] &quot;Unemployment.rate..women.......SL_TLF_UEM&quot;                                                          
+## [43] &quot;Annual.production.based.emissions.of.carbon.dioxide..CO2..measured.in.million.tonnes...GH.EM.IC.LUF&quot;
+## [44] &quot;Continent&quot;                                                                                          
+## [45] &quot;Gini.index..World.Bank.estimate....SI.POV.GINI&quot;                                                     
+## [46] &quot;Income&quot;                                                                                             
+## [47] &quot;Individuals.using.the.Internet....of.population....IT.NET.USER.ZS&quot;                                  
+## [48] &quot;Life.expectancy.at.birth..total..years....SP.DYN.LE00.IN&quot;                                           
+## [49] &quot;Population..total...SP.POP.TOTL&quot;                                                                    
+## [50] &quot;Regime&quot;                                                                                             
+## [51] &quot;Rural.population....of.total.population....SP.RUR.TOTL.ZS&quot;                                          
+## [52] &quot;Total.natural.resources.rents....of.GDP....NY.GDP.TOTL.RT.ZS&quot;                                       
+## [53] &quot;Urban.population....of.total.population....SP.URB.TOTL.IN.ZS&quot;                                       
+## [54] &quot;Region&quot;</code></pre>
+</div>
+</div>
+<div id="tipos-de-datos-y-posibles-inconsistencias" class="section level1">
+<h1>2 Tipos de datos y Posibles Inconsistencias</h1>
+<div id="variables-cuantitativas" class="section level2">
+<h2>2.1 Variables Cuantitativas</h2>
+<p>Comenzaremos comprobando los valores centinelas y los valores nulos o
+erroneos posibles.</p>
+<pre class="r"><code># Comenzamos solo por los null
+worldSustainabiltyDataSet &lt;- worldSustainabiltyDataSet %&gt;% replace(.==&quot;NULL&quot;, NA)</code></pre>
+</div>
+<div id="variables-cuantitativas-1" class="section level2">
+<h2>2.2 Variables cuantitativas</h2>
 </div>
 </div>
 
