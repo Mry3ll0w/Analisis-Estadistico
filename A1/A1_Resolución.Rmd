@@ -11,7 +11,7 @@ library(readxl)
 library(dplyr)
 library(stringr)
 library(skimr) 
-
+library(ggplot2)
 ```
 
 ## Disclaimer
@@ -22,7 +22,7 @@ Análisis Estadístico.
 
 ## 1.1 Diccionario de los datos
 En este apartado simplemente realizamos la carga de datos y una pequeña ordenacion.
-```{r, echo=TRUE}
+```{r, echo=TRUE, include=FALSE}
 
 # Cargamos en primer lugar el WorldSustainabilty
 csv_location <- "WorldSustainabilityDataset.csv"
@@ -51,6 +51,10 @@ table2 <- table2 %>% arrange(`Associated SDG GOAL`)
 
 table1 <- table1 %>% rename( SDG = `Associated SDG GOAL`)
 table2 <- table2 %>% rename( SDG = `Associated SDG GOAL`)
+```
+```{r}
+head(table1,4)
+head(table2,4)
 ```
 
 ## 1.2 Fichero de datos
@@ -94,7 +98,7 @@ names(worldSustainabiltyDataSet) <- currColNames
 ```
 
 ```{r, echo=TRUE}
-names(worldSustainabiltyDataSet)
+head(names(worldSustainabiltyDataSet),3)
 
 ```
 
@@ -105,6 +109,7 @@ names(worldSustainabiltyDataSet)
 
 Comenzaremos comprobando los valores centinelas y los valores nulos o erroneos posibles.
 ```{r}
+cleanNames <- names(worldSustainabiltyDataSet)
 # Comenzamos solo por los null
 worldSustainabiltyDataSet <- worldSustainabiltyDataSet %>% replace(.=="NULL", NA)
 ```
@@ -125,11 +130,141 @@ worldSustainabiltyDataSet <- worldSustainabiltyDataSet %>% replace(.=="9999", NA
 
 worldSustainabiltyDataSet <- worldSustainabiltyDataSet %>% replace(.=="Unknown", NA)
 
-
+names(worldSustainabiltyDataSet) <- cleanNames
 
 ```
 
 ## 2.2 Variables cuantitativas
+
+### 2.2.1 Países y códigos de países
+```{r, include=FALSE}
+# definimos una función para hacer los cambios de formato
+colDataFormatter<- function(colToFix){
+  colToFix <- toupper(colToFix)
+  colToFix <- str_replace_all(colToFix, " ", "_")
+  return (colToFix)
+}
+```
+
+```{r, include=FALSE}
+countryCol <- worldSustainabiltyDataSet$Country
+countryCodeCol <- worldSustainabiltyDataSet$CountryCode
+
+# Agregamos los cambios al dataset:
+countryCol <- colDataFormatter(countryCol)
+countryCodeCol <- colDataFormatter(countryCodeCol)
+worldSustainabiltyDataSet$Country <- countryCol
+worldSustainabiltyDataSet$CountryCode <- countryCodeCol
+
+```
+Cambios aplicados: 
+```{r}
+head(unique(countryCol),4)
+head(unique(countryCodeCol),4)
+```
+
+### 2.2.2 Continente
+
+```{r, include=FALSE}
+worldSustainabiltyDataSet$Continent <- colDataFormatter(worldSustainabiltyDataSet$Continent)
+```
+```{r}
+
+head(unique(worldSustainabiltyDataSet$Continent))
+
+```
+
+### 2.2.3 Régimen
+```{r, include=FALSE}
+
+worldSustainabiltyDataSet$Regime <- colDataFormatter(worldSustainabiltyDataSet$Regime)
+```
+```{r}
+head(unique(worldSustainabiltyDataSet$Regime))
+```
+
+### 2.2.4 Región
+```{r, include=FALSE}
+
+worldSustainabiltyDataSet$Region <- colDataFormatter(worldSustainabiltyDataSet$Region)
+```
+```{r}
+head(unique(worldSustainabiltyDataSet$Region))
+```
+
+### 2.2.5 Región
+```{r, include=FALSE}
+
+worldSustainabiltyDataSet$Income <- colDataFormatter(worldSustainabiltyDataSet$Income)
+```
+```{r}
+head(unique(worldSustainabiltyDataSet$Income))
+```
+
+# 3 Valores Extremos
+
+## 3.1 Desigualdad (GINI)
+```{r, include=FALSE}
+  # Renombramos las columnas
+  # Corresponde a la columna SI.POV.GINI
+  worldSustainabiltyDataSet <- worldSustainabiltyDataSet %>% rename( GINI = `Gini.index..World.Bank.estimate....SI.POV.GINI`)
+  
+  # Corresponde al codigo GH.EM.IC.LUF
+  worldSustainabiltyDataSet <- worldSustainabiltyDataSet %>% rename( GHE = `Annual.production.based.emissions.of.carbon.dioxide..CO2..measured.in.million.tonnes...GH.EM.IC.LUF`)
+    
+
+```
+
+```{r}
+# Creamos una tabla con las 3 columnas a trabajar
+# Country GINI YEAR
+
+tblCountryGiniYear <- worldSustainabiltyDataSet %>%
+  select(Country, GINI,Year)
+# Vistazo rápido de las columnas
+summary(tblCountryGiniYear$Country)
+summary(tblCountryGiniYear$GINI)
+summary(tblCountryGiniYear$Year)
+```
+
+Comenzaremos con la realización de una boxplot para visualizar los datos de forma sencilla:
+
+```{r}
+boxplot(tblCountryGiniYear$GINI, main="GINI BOXPLOT")
+boxplot(tblCountryGiniYear$Year, main="Year BOXPLOT")
+# Comprobamos los stats para ver claramente los outliers
+boxplot.stats(tblCountryGiniYear$GINI)$out
+
+# Vamos a ver cuantos registr
+length(tblCountryGiniYear$GINI)
+length(which(is.na(tblCountryGiniYear$GINI)))
+length(boxplot.stats(tblCountryGiniYear$GINI)$out)
+```
+
+Como podemos ver en el "boxplot" de GINI tenemos una gran cantidad de valores atípicos, 
+existiendo una asímetría de datos positiva, puesto que tenemos bastantes valores outliers en GINI, esto conlleva cierta dispersión ya que tenemos valores alejados de la media y mediana.
+Si nos centramos en los valores del "boxplot" de Year podemos observar como los mismos tienen poca dispersión, por lo que no requieren de tratamientos.
+
+En cuanto a los valores outliers estos requieren una transformación puesto que aunque son pocos pueden distorsionar el estudio de valores esenciales como son la media/mediana, por lo que aplicamos winsorización: 
+
+```{r}
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
