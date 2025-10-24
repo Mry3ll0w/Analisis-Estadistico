@@ -12,6 +12,7 @@ library(dplyr)
 library(stringr)
 library(skimr) 
 library(ggplot2)
+library(psych)
 ```
 
 ## Disclaimer
@@ -243,12 +244,54 @@ length(boxplot.stats(tblCountryGiniYear$GINI)$out)
 
 Como podemos ver en el "boxplot" de GINI tenemos una gran cantidad de valores atípicos, 
 existiendo una asímetría de datos positiva, puesto que tenemos bastantes valores outliers en GINI, esto conlleva cierta dispersión ya que tenemos valores alejados de la media y mediana.
-Si nos centramos en los valores del "boxplot" de Year podemos observar como los mismos tienen poca dispersión, por lo que no requieren de tratamientos.
+Si nos centramos en los valores del "boxplot" de Year podemos observar como los mismos tienen cierta dispersión.
 
 En cuanto a los valores outliers estos requieren una transformación puesto que aunque son pocos pueden distorsionar el estudio de valores esenciales como son la media/mediana, por lo que aplicamos winsorización: 
 
 ```{r}
 
+tblCountryGiniYear$GINI <- psych::winsor(
+  x = tblCountryGiniYear$GINI,
+  trim = 0.01
+)
+
+boxplot(tblCountryGiniYear$GINI, main="Wisorized GINI")
+
+```
+
+## 3.2 Green House Emissions
+
+### 1ª Parte 
+
+Estudiaremos los valores outliers de forma similar al apartado 3.1: 
+
+```{r}
+boxplot(worldSustainabiltyDataSet$GHE, main="GHE Boxplot")
+summary(worldSustainabiltyDataSet$GHE)
+# Comparamos cuantos outliers hay sobre la población.
+length(worldSustainabiltyDataSet$GHE)
+length(boxplot.stats(worldSustainabiltyDataSet$GHE)$out)
+```
+
+Como podemos apreciar existe una gran cantidad de valores outliers dentro de los datos, pero en este caso no tiene sentido su transformación puesto que corresponde a aproximadamente el 16% del total de los mismos. En caso de realizar una transformación únicamente conseguiriamos alterar el resultado del estudio, al eliminar tantos resultados.
+
+### 2ª Parte
+
+Seleccionamos en una lista compuesta por los países más contaminantes en el año 2018, ordenandola de mayor a menor cantidad de emisiones.
+
+```{r}
+# Pillamos los valores de 2018
+tblCountryGHE <- worldSustainabiltyDataSet %>%
+  filter(Year == 2018) %>%
+  select(Country, GHE)
+
+# filtramos ahora por los valores outliers
+
+tblCountryGHE <- tblCountryGHE %>%
+  filter(GHE >= min(boxplot.stats(tblCountryGHE$GHE)$out) ) %>%
+  arrange(desc(GHE))
+
+head(tblCountryGHE)
 ```
 
 
