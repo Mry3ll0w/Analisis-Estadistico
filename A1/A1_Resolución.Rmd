@@ -13,6 +13,8 @@ library(stringr)
 library(skimr) 
 library(ggplot2)
 library(psych)
+library(corrplot)
+
 ```
 
 ## Disclaimer
@@ -23,7 +25,7 @@ Análisis Estadístico.
 
 ## 1.1 Diccionario de los datos
 En este apartado simplemente realizamos la carga de datos y una pequeña ordenacion.
-```{r, echo=TRUE, include=FALSE}
+```{r, echo=TRUE}
 
 # Cargamos en primer lugar el WorldSustainabilty
 csv_location <- "WorldSustainabilityDataset.csv"
@@ -62,7 +64,7 @@ head(table2,4)
 
 Renombramos de forma manual Country y Country Code ya que no estan en 
 el diccionario
-```{r,results='hide', include=FALSE}
+```{r,results='hide'}
 
 worldSustainabiltyDataSet <- worldSustainabiltyDataSet %>%
   rename(Country = `Country.Name`)
@@ -115,7 +117,7 @@ cleanNames <- names(worldSustainabiltyDataSet)
 worldSustainabiltyDataSet <- worldSustainabiltyDataSet %>% replace(.=="NULL", NA)
 ```
 
-```{r, include=FALSE}
+```{r}
 
 # Sustituimos por todas las variables
 
@@ -138,7 +140,7 @@ names(worldSustainabiltyDataSet) <- cleanNames
 ## 2.2 Variables cuantitativas
 
 ### 2.2.1 Países y códigos de países
-```{r, include=FALSE}
+```{r}
 # definimos una función para hacer los cambios de formato
 colDataFormatter<- function(colToFix){
   colToFix <- toupper(colToFix)
@@ -147,7 +149,7 @@ colDataFormatter<- function(colToFix){
 }
 ```
 
-```{r, include=FALSE}
+```{r}
 countryCol <- worldSustainabiltyDataSet$Country
 countryCodeCol <- worldSustainabiltyDataSet$CountryCode
 
@@ -166,7 +168,7 @@ head(unique(countryCodeCol),4)
 
 ### 2.2.2 Continente
 
-```{r, include=FALSE}
+```{r}
 worldSustainabiltyDataSet$Continent <- colDataFormatter(worldSustainabiltyDataSet$Continent)
 ```
 ```{r}
@@ -176,7 +178,7 @@ head(unique(worldSustainabiltyDataSet$Continent))
 ```
 
 ### 2.2.3 Régimen
-```{r, include=FALSE}
+```{r}
 
 worldSustainabiltyDataSet$Regime <- colDataFormatter(worldSustainabiltyDataSet$Regime)
 ```
@@ -185,7 +187,7 @@ head(unique(worldSustainabiltyDataSet$Regime))
 ```
 
 ### 2.2.4 Región
-```{r, include=FALSE}
+```{r}
 
 worldSustainabiltyDataSet$Region <- colDataFormatter(worldSustainabiltyDataSet$Region)
 ```
@@ -194,7 +196,7 @@ head(unique(worldSustainabiltyDataSet$Region))
 ```
 
 ### 2.2.5 Región
-```{r, include=FALSE}
+```{r}
 
 worldSustainabiltyDataSet$Income <- colDataFormatter(worldSustainabiltyDataSet$Income)
 ```
@@ -205,7 +207,7 @@ head(unique(worldSustainabiltyDataSet$Income))
 # 3 Valores Extremos
 
 ## 3.1 Desigualdad (GINI)
-```{r, include=FALSE}
+```{r}
   # Renombramos las columnas
   # Corresponde a la columna SI.POV.GINI
   worldSustainabiltyDataSet <- worldSustainabiltyDataSet %>% rename( GINI = `Gini.index..World.Bank.estimate....SI.POV.GINI`)
@@ -295,9 +297,56 @@ head(tblCountryGHE)
 ```
 
 
+# 4 Correlaciones
 
+# 4.1 Matriz de correlaciones en indicadores de pobreza
 
+```{r}
+# Codigos implicados: 
+# SP.DYN.LE00.IN ==> LE [48]
+# SN_ITK_DEFC ==> DEFC [36]
+# SP_ACS_BSRVH2O ==> BSRVW [40]
+# SI_POV_DAY1 ==> POVL [37]
+# SE.PRM.UNER.ZS ==> COSCH [13]
+# NY.GDP.MKTP.CD ==> GDP [19]
 
+# Renombramos y extraemos para mayor facilidad
+
+worldSustainabiltyDataSet <- worldSustainabiltyDataSet %>% rename( LE = `Life.expectancy.at.birth..total..years....SP.DYN.LE00.IN`)
+
+worldSustainabiltyDataSet <- worldSustainabiltyDataSet %>% rename( DEFC = `Prevalence.of.undernourishment.......SN_ITK_DEFC`)
+
+worldSustainabiltyDataSet <- worldSustainabiltyDataSet %>% rename( BSRVW = `Proportion.of.population.using.basic.drinking.water.services.......SP_ACS_BSRVH2O`)
+
+worldSustainabiltyDataSet <- worldSustainabiltyDataSet %>% rename( POVL = `Proportion.of.population.below.international.poverty.line.......SI_POV_DAY1`)
+
+worldSustainabiltyDataSet <- worldSustainabiltyDataSet %>% rename( COSCH = `Children.out.of.school....of.primary.school.age....SE.PRM.UNER.ZS`)
+
+worldSustainabiltyDataSet <- worldSustainabiltyDataSet %>% rename( GDP = `GDP..current.US.....NY.GDP.MKTP.CD`)
+
+colsToCorr <- c("LE", "DEFC", "BSRVW", "POVL", "COSCH", "GDP" )
+
+dataToCorr <- worldSustainabiltyDataSet %>% select(all_of(colsToCorr))
+
+head(dataToCorr)
+
+corrMatrix <- cor(dataToCorr, 
+                  use = "pairwise.complete.obs") #Ya que tiene elementos NA
+corrMatrix <- round(corrMatrix,2) # Para tratar con 2 decimales
+
+corrMatrix
+
+# Usamos la libreria corrplot para mostrar de forma simplificada la matriz
+corrplot(corrMatrix, 
+         type = "upper", 
+         order = "hclust",  
+         tl.col = "black", 
+         tl.srt = 45
+         )
+
+```
+
+Por los resultados obtenidos existe cierta correlación, una correlación relativamente elevada puesto que la mayor correlación que existe es una correlación negativa entre las variables POVL (población viviendo bajo el umbral de la pobreza) y LE (Expectativa de Vida) y POVL con BSRVW (Población que usa fuentes básicas de agua), siendo la primera de -0.77 (POVL <-> LE) y -0.8 (POVL <-> BSRW).
 
 
 
