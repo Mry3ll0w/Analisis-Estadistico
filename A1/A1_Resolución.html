@@ -11,7 +11,7 @@
 
 <meta name="author" content="Antonio Roldán Andrade" />
 
-<meta name="date" content="2025-10-25" />
+<meta name="date" content="2025-10-27" />
 
 <title>A1</title>
 
@@ -352,7 +352,7 @@ display: none;
 
 <h1 class="title toc-ignore">A1</h1>
 <h4 class="author">Antonio Roldán Andrade</h4>
-<h4 class="date">2025-10-25</h4>
+<h4 class="date">2025-10-27</h4>
 
 </div>
 
@@ -641,9 +641,6 @@ head(tblCountryGHE)</code></pre>
 </div>
 <div id="correlaciones" class="section level1">
 <h1>4 Correlaciones</h1>
-</div>
-<div id="matriz-de-correlaciones-en-indicadores-de-pobreza" class="section level1">
-<h1>4.1 Matriz de correlaciones en indicadores de pobreza</h1>
 <pre class="r"><code># Codigos implicados: 
 # SP.DYN.LE00.IN ==&gt; LE [48]
 # SN_ITK_DEFC ==&gt; DEFC [36]
@@ -704,6 +701,62 @@ existe es una correlación negativa entre las variables POVL (población
 viviendo bajo el umbral de la pobreza) y LE (Expectativa de Vida) y POVL
 con BSRVW (Población que usa fuentes básicas de agua), siendo la primera
 de -0.77 (POVL &lt;-&gt; LE) y -0.8 (POVL &lt;-&gt; BSRW).</p>
+<p>Es decir, la esperanza de vida está fuertemente correlacionada con
+los indicadores sociales y de servicios básicos (Pobreza, Educación y
+Acceso al Agua) más que con el indicador económico crudo (PIB). Esto
+sugiere que la inversión en bienestar social y servicios esenciales es
+más efectiva para mejorar la salud de la población que el crecimiento
+económico general por sí solo.</p>
+</div>
+<div id="imputación" class="section level1">
+<h1>5 Imputación</h1>
+<p>Con respecto a este apartado usaremos las medias de los vecinos más
+cercanos usando las variables con una mayor correlación, es decir,
+mediante las conclusiones obtenidas en el apartado anterior tenemos que
+las variables a utilizar serán: BSRVW, POVL y COSCH puesto que son
+aquellas con una correlación lo suficientemente alta.</p>
+<pre class="r"><code># Comprobamos que columnas estan vacías para aplicarle la imputación
+tblNAYear &lt;- worldSustainabiltyDataSet %&gt;%
+  group_by(Year) %&gt;%
+  filter(all(is.na(LE)) == TRUE) %&gt;%
+  select(Year) %&gt;%
+  ungroup()
+
+unique(tblNAYear$Year)</code></pre>
+<pre><code>## [1] 2000</code></pre>
+<pre class="r"><code># Creamos una tabla con los LE del año 2001 ya que no puede tener NA a la hora de hacer kNN
+datoskNNImputados &lt;- worldSustainabiltyDataSet %&gt;% filter(Year == 2001) %&gt;% 
+  select(LE, BSRVW, POVL, COSCH )
+
+# 2. Aplicar kNN. Imputamos LE (variable)
+datoskNNClean &lt;- kNN(
+  data = datoskNNImputados,
+  variable = c(&quot;LE&quot;),
+  k = 5,
+  dist_var = c(&quot;BSRVW&quot;, &quot;POVL&quot;, &quot;COSCH&quot;)
+)</code></pre>
+<pre><code>##    BSRVW     POVL    COSCH    BSRVW     POVL    COSCH 
+##  29.0000   0.0000   0.0000 100.0000  68.4000  69.4751</code></pre>
+<pre class="r"><code>#Aqui tenemos los datos de KNN con datos ya imputados
+head(datoskNNClean$LE)</code></pre>
+<pre><code>## [1] 73.853 47.059 74.288 74.544 73.755 71.800</code></pre>
+<pre class="r"><code># Preparamos la sustitución agregando una columna 
+worldSustainabiltyDataSet$LE2000 &lt;- datoskNNClean$LE
+
+# Hacemos un mutate para sustituir los valores del año 2000 por los valores guardados en LE2000
+worldSustainabiltyDataSet &lt;- worldSustainabiltyDataSet %&gt;%
+  mutate(
+    LE = case_when(
+      # Condición: Si el año es 2000, usa el valor imputado
+      Year == 2000 ~ LE2000,
+      # Si el año no es 2000, mantén el valor original de la columna LE
+      TRUE ~ LE
+    )
+  ) %&gt;%
+  select(-LE2000) # Eliminar la columna auxiliar</code></pre>
+</div>
+<div id="tabla-resumen" class="section level1">
+<h1>6 Tabla resumen</h1>
 </div>
 
 

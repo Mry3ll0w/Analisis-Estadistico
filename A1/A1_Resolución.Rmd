@@ -14,6 +14,7 @@ library(skimr)
 library(ggplot2)
 library(psych)
 library(corrplot)
+library(VIM)
 
 ```
 
@@ -299,8 +300,6 @@ head(tblCountryGHE)
 
 # 4 Correlaciones
 
-# 4.1 Matriz de correlaciones en indicadores de pobreza
-
 ```{r}
 # Codigos implicados: 
 # SP.DYN.LE00.IN ==> LE [48]
@@ -347,6 +346,59 @@ corrplot(corrMatrix,
 ```
 
 Por los resultados obtenidos existe cierta correlación, una correlación relativamente elevada puesto que la mayor correlación que existe es una correlación negativa entre las variables POVL (población viviendo bajo el umbral de la pobreza) y LE (Expectativa de Vida) y POVL con BSRVW (Población que usa fuentes básicas de agua), siendo la primera de -0.77 (POVL <-> LE) y -0.8 (POVL <-> BSRW).
+
+Es decir, la esperanza de vida está fuertemente correlacionada con los indicadores sociales y de servicios básicos (Pobreza, Educación y Acceso al Agua) más que con el indicador económico crudo (PIB). Esto sugiere que la inversión en bienestar social y servicios esenciales es más efectiva para mejorar la salud de la población que el crecimiento económico general por sí solo.
+
+# 5 Imputación
+
+Con respecto a este apartado usaremos las medias de los vecinos más cercanos usando las variables con una mayor correlación, es decir, mediante las conclusiones obtenidas en el apartado anterior tenemos que las variables a utilizar serán: BSRVW, POVL y COSCH puesto que son aquellas con una correlación lo suficientemente alta.
+
+```{r}
+# Comprobamos que columnas estan vacías para aplicarle la imputación
+tblNAYear <- worldSustainabiltyDataSet %>%
+  group_by(Year) %>%
+  filter(all(is.na(LE)) == TRUE) %>%
+  select(Year) %>%
+  ungroup()
+
+unique(tblNAYear$Year)
+
+# Creamos una tabla con los LE del año 2001 ya que no puede tener NA a la hora de hacer kNN
+datoskNNImputados <- worldSustainabiltyDataSet %>% filter(Year == 2001) %>% 
+  select(LE, BSRVW, POVL, COSCH )
+
+# 2. Aplicar kNN. Imputamos LE (variable)
+datoskNNClean <- kNN(
+  data = datoskNNImputados,
+  variable = c("LE"),
+  k = 5,
+  dist_var = c("BSRVW", "POVL", "COSCH")
+)
+#Aqui tenemos los datos de KNN con datos ya imputados
+head(datoskNNClean$LE)
+
+# Preparamos la sustitución agregando una columna 
+worldSustainabiltyDataSet$LE2000 <- datoskNNClean$LE
+
+# Hacemos un mutate para sustituir los valores del año 2000 por los valores guardados en LE2000
+worldSustainabiltyDataSet <- worldSustainabiltyDataSet %>%
+  mutate(
+    LE = case_when(
+      # Condición: Si el año es 2000, usa el valor imputado
+      Year == 2000 ~ LE2000,
+      # Si el año no es 2000, mantén el valor original de la columna LE
+      TRUE ~ LE
+    )
+  ) %>%
+  select(-LE2000) # Eliminar la columna auxiliar
+
+
+
+```
+
+# 6 Tabla resumen
+
+
 
 
 
