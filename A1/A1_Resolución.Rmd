@@ -399,7 +399,69 @@ worldSustainabiltyDataSet <- worldSustainabiltyDataSet %>%
 # 6 Tabla resumen
 
 
+```{r}
+# Variables relacionadas:
+# SI_POV_DAY1 --> POVL
+# GINI
+# LE 
 
+# Se pide calcular las medidas de tendencia central y dispersión (robustas y no robustas)
+
+
+
+# Datos: Agrupamos los datos por regiones, mostramos solo los datos más recientes.
+
+# Comenzamos agrupando los distintos datos:
+
+recentData <- worldSustainabiltyDataSet %>% 
+  group_by(Region) %>%
+  filter(Year == max(Year, na.rm = TRUE)) %>%
+  select(POVL, GINI, LE, Region)
+
+
+# Realizamos los cálculos al mismo tiempo y después separamos en tablas
+recentData <- recentData %>%
+  summarise(
+    # Aplicar las cuatro funciones a las variables definidas
+    across(
+      .cols = all_of(c('LE', 'GINI', 'POVL')), 
+      .fns = list(
+        # TB1: Tendencia Central
+        Media = ~ mean(.x, na.rm = TRUE), # No Robusta
+        Mediana = ~ median(.x, na.rm = TRUE), # Robusta
+        
+        # Dispersión
+        Desviacion_Estandar = ~ sd(.x, na.rm = TRUE), # No Robusta
+        Desviacion_Absoluta_Mediana = ~ mad(.x, na.rm = TRUE) # Robusta
+      ),
+      .names = "{.col}_{.fn}" #  columnas dinámicas ('LE_Media', 'GINI_Mediana',... )
+    ),
+    .groups = 'drop' # No requerimos hacer agrupaciones tras realizar el cálculo.
+  )
+
+# Tabla 1 : Medidas de tendencia Central (media, mediana)
+
+centralTendencyTable <- recentData %>% 
+  select(
+    Region,
+    ends_with("Media"),
+    ends_with("Mediana")
+  )
+
+print(centralTendencyTable)
+
+# Tabla 2 : Medias de dispersión (desviación estandar, desviación absoluta con respecto a la mediana)
+
+dispersionTable <- recentData %>% 
+  select(
+    Region, 
+    ends_with("Desviacion_Estandar"), 
+    ends_with("Desviacion_Absoluta_Mediana")
+  )
+
+print(dispersionTable)
+
+```
 
 
 

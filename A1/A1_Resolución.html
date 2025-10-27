@@ -757,6 +757,95 @@ worldSustainabiltyDataSet &lt;- worldSustainabiltyDataSet %&gt;%
 </div>
 <div id="tabla-resumen" class="section level1">
 <h1>6 Tabla resumen</h1>
+<pre class="r"><code># Variables relacionadas:
+# SI_POV_DAY1 --&gt; POVL
+# GINI
+# LE 
+
+# Se pide calcular las medidas de tendencia central y dispersión (robustas y no robustas)
+
+
+
+# Datos: Agrupamos los datos por regiones, mostramos solo los datos más recientes.
+
+# Comenzamos agrupando los distintos datos:
+
+recentData &lt;- worldSustainabiltyDataSet %&gt;% 
+  group_by(Region) %&gt;%
+  filter(Year == max(Year, na.rm = TRUE)) %&gt;%
+  select(POVL, GINI, LE, Region)
+
+
+# Realizamos los cálculos al mismo tiempo y después separamos en tablas
+recentData &lt;- recentData %&gt;%
+  summarise(
+    # Aplicar las cuatro funciones a las variables definidas
+    across(
+      .cols = all_of(c(&#39;LE&#39;, &#39;GINI&#39;, &#39;POVL&#39;)), 
+      .fns = list(
+        # TB1: Tendencia Central
+        Media = ~ mean(.x, na.rm = TRUE), # No Robusta
+        Mediana = ~ median(.x, na.rm = TRUE), # Robusta
+        
+        # Dispersión
+        Desviacion_Estandar = ~ sd(.x, na.rm = TRUE), # No Robusta
+        Desviacion_Absoluta_Mediana = ~ mad(.x, na.rm = TRUE) # Robusta
+      ),
+      .names = &quot;{.col}_{.fn}&quot; #  columnas dinámicas (&#39;LE_Media&#39;, &#39;GINI_Mediana&#39;,... )
+    ),
+    .groups = &#39;drop&#39; # No requerimos hacer agrupaciones tras realizar el cálculo.
+  )
+
+# Tabla 1 : Medidas de tendencia Central (media, mediana)
+
+centralTendencyTable &lt;- recentData %&gt;% 
+  select(
+    Region,
+    ends_with(&quot;Media&quot;),
+    ends_with(&quot;Mediana&quot;)
+  )
+
+print(centralTendencyTable)</code></pre>
+<pre><code>## # A tibble: 8 × 10
+##   Region        LE_Media GINI_Media POVL_Media LE_Mediana LE_Desviacion_Absolu…¹
+##   &lt;chr&gt;            &lt;dbl&gt;      &lt;dbl&gt;      &lt;dbl&gt;      &lt;dbl&gt;                  &lt;dbl&gt;
+## 1 CENTRAL_AND_…     72.5       32.3      1.38        71.5                   1.98
+## 2 EASTERN_AND_…     75.4       37.3      3.1         75.5                   8.73
+## 3 EUROPE_AND_N…     79.1       31.0      0.448       80.9                   3.61
+## 4 LATIN_AMERIC…     74.9       45.4      3.21        75.0                   2.68
+## 5 NORTHERN_AFR…     76.0       34.3      1.18        76.5                   3.04
+## 6 OCEANIA           74.3      NaN      NaN           71.8                   4.43
+## 7 SUB-SAHARAN_…     62.6       38.6     33.1         63.0                   4.40
+## 8 &lt;NA&gt;             NaN        NaN       38.5         NA                    NA   
+## # ℹ abbreviated name: ¹​LE_Desviacion_Absoluta_Mediana
+## # ℹ 4 more variables: GINI_Mediana &lt;dbl&gt;,
+## #   GINI_Desviacion_Absoluta_Mediana &lt;dbl&gt;, POVL_Mediana &lt;dbl&gt;,
+## #   POVL_Desviacion_Absoluta_Mediana &lt;dbl&gt;</code></pre>
+<pre class="r"><code># Tabla 2 : Medias de dispersión (desviación estandar, desviación absoluta con respecto a la mediana)
+
+dispersionTable &lt;- recentData %&gt;% 
+  select(
+    Region, 
+    ends_with(&quot;Desviacion_Estandar&quot;), 
+    ends_with(&quot;Desviacion_Absoluta_Mediana&quot;)
+  )
+
+print(dispersionTable)</code></pre>
+<pre><code>## # A tibble: 8 × 7
+##   Region    LE_Desviacion_Estandar GINI_Desviacion_Esta…¹ POVL_Desviacion_Esta…²
+##   &lt;chr&gt;                      &lt;dbl&gt;                  &lt;dbl&gt;                  &lt;dbl&gt;
+## 1 CENTRAL_…                   3.31                   6.73                  2.03 
+## 2 EASTERN_…                   6.16                   3.23                  3.64 
+## 3 EUROPE_A…                   3.51                   4.61                  0.733
+## 4 LATIN_AM…                   3.31                   4.35                  3.91 
+## 5 NORTHERN…                   3.13                   5.78                  1.95 
+## 6 OCEANIA                     6.44                  NA                    NA    
+## 7 SUB-SAHA…                   5.03                   8.64                 22.2  
+## 8 &lt;NA&gt;                       NA                     NA                    NA    
+## # ℹ abbreviated names: ¹​GINI_Desviacion_Estandar, ²​POVL_Desviacion_Estandar
+## # ℹ 3 more variables: LE_Desviacion_Absoluta_Mediana &lt;dbl&gt;,
+## #   GINI_Desviacion_Absoluta_Mediana &lt;dbl&gt;,
+## #   POVL_Desviacion_Absoluta_Mediana &lt;dbl&gt;</code></pre>
 </div>
 
 
