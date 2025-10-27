@@ -1,0 +1,908 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+\documentclass[
+]{article}
+\usepackage{xcolor}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math} % this also loads fontspec
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+\usepackage{lmodern}
+\ifPDFTeX\else
+  % xetex/luatex font selection
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\usepackage{graphicx}
+\makeatletter
+\newsavebox\pandoc@box
+\newcommand*\pandocbounded[1]{% scales image to fit in text height/width
+  \sbox\pandoc@box{#1}%
+  \Gscale@div\@tempa{\textheight}{\dimexpr\ht\pandoc@box+\dp\pandoc@box\relax}%
+  \Gscale@div\@tempb{\linewidth}{\wd\pandoc@box}%
+  \ifdim\@tempb\p@<\@tempa\p@\let\@tempa\@tempb\fi% select the smaller of both
+  \ifdim\@tempa\p@<\p@\scalebox{\@tempa}{\usebox\pandoc@box}%
+  \else\usebox{\pandoc@box}%
+  \fi%
+}
+% Set default figure placement to htbp
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\usepackage{bookmark}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same}
+\hypersetup{
+  pdftitle={A1},
+  pdfauthor={Antonio Roldán Andrade},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+
+\title{A1}
+\author{Antonio Roldán Andrade}
+\date{2025-10-27}
+
+\begin{document}
+\maketitle
+
+\subsection{Disclaimer}\label{disclaimer}
+
+Este es el documento de resolución de la actividad 1 para la asignatura
+de Análisis Estadístico.
+
+\section{1. Estructura de los datos}\label{estructura-de-los-datos}
+
+\subsection{1.1 Diccionario de los
+datos}\label{diccionario-de-los-datos}
+
+En este apartado simplemente realizamos la carga de datos y una pequeña
+ordenacion.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Cargamos en primer lugar el WorldSustainabilty}
+\NormalTok{csv\_location }\OtherTok{\textless{}{-}} \StringTok{"WorldSustainabilityDataset.csv"}
+\NormalTok{worldSustainabiltyDataSet }\OtherTok{\textless{}{-}} \FunctionTok{read.csv}\NormalTok{(csv\_location, }\AttributeTok{sep =} \StringTok{","}\NormalTok{)}
+
+\CommentTok{\# Cargamos a continuación el DataDictonary}
+\CommentTok{\# Para cargar el dataset usamos la libreria readxl ==\textgreater{} install.packages("readxl")}
+\CommentTok{\# Realizamos la carga en la parte superior del código, limpieza}
+
+\NormalTok{xlsx\_location }\OtherTok{\textless{}{-}} \StringTok{"Data\_Dictionary.xlsx"}
+\NormalTok{data\_dictionaryDataSet }\OtherTok{\textless{}{-}} \FunctionTok{read\_excel}\NormalTok{(xlsx\_location)}
+
+
+\CommentTok{\# Tabla 1 ==\textgreater{} ODS | Codigo Variable/Indicador | Descripcion}
+
+\NormalTok{table1 }\OtherTok{\textless{}{-}}\NormalTok{ data\_dictionaryDataSet }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{select}\NormalTok{(}\StringTok{\textasciigrave{}}\AttributeTok{Associated SDG GOAL}\StringTok{\textasciigrave{}}\NormalTok{, Code, Description)}
+
+\CommentTok{\# ODS | Descripcion}
+\NormalTok{table2 }\OtherTok{\textless{}{-}}\NormalTok{ data\_dictionaryDataSet }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{select}\NormalTok{(}\StringTok{\textasciigrave{}}\AttributeTok{Associated SDG GOAL}\StringTok{\textasciigrave{}}\NormalTok{, Description)}
+
+\CommentTok{\# Ordenamos y renombro por comodidad.}
+\NormalTok{table1 }\OtherTok{\textless{}{-}}\NormalTok{ table1 }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{arrange}\NormalTok{(}\StringTok{\textasciigrave{}}\AttributeTok{Associated SDG GOAL}\StringTok{\textasciigrave{}}\NormalTok{)}
+\NormalTok{table2 }\OtherTok{\textless{}{-}}\NormalTok{ table2 }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{arrange}\NormalTok{(}\StringTok{\textasciigrave{}}\AttributeTok{Associated SDG GOAL}\StringTok{\textasciigrave{}}\NormalTok{)}
+
+\NormalTok{table1 }\OtherTok{\textless{}{-}}\NormalTok{ table1 }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{rename}\NormalTok{( }\AttributeTok{SDG =} \StringTok{\textasciigrave{}}\AttributeTok{Associated SDG GOAL}\StringTok{\textasciigrave{}}\NormalTok{)}
+\NormalTok{table2 }\OtherTok{\textless{}{-}}\NormalTok{ table2 }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{rename}\NormalTok{( }\AttributeTok{SDG =} \StringTok{\textasciigrave{}}\AttributeTok{Associated SDG GOAL}\StringTok{\textasciigrave{}}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{head}\NormalTok{(table1,}\DecValTok{4}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## # A tibble: 4 x 3
+##   SDG                  Code      Description                                    
+##   <chr>                <chr>     <chr>                                          
+## 1 Classification types Regime    Regime classified considering the competitiven~
+## 2 Classification types Income    World Bank assigns the world’s economies to fo~
+## 3 Classification types Region    World Region as classified by UN.              
+## 4 Classification types Continent Continent classification according to UN Conve~
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{head}\NormalTok{(table2,}\DecValTok{4}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## # A tibble: 4 x 2
+##   SDG                  Description                                              
+##   <chr>                <chr>                                                    
+## 1 Classification types Regime classified considering the competitiveness of acc~
+## 2 Classification types World Bank assigns the world’s economies to four income ~
+## 3 Classification types World Region as classified by UN.                        
+## 4 Classification types Continent classification according to UN Convention
+\end{verbatim}
+
+\subsection{1.2 Fichero de datos}\label{fichero-de-datos}
+
+Renombramos de forma manual Country y Country Code ya que no estan en el
+diccionario
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{worldSustainabiltyDataSet }\OtherTok{\textless{}{-}}\NormalTok{ worldSustainabiltyDataSet }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{rename}\NormalTok{(}\AttributeTok{Country =} \StringTok{\textasciigrave{}}\AttributeTok{Country.Name}\StringTok{\textasciigrave{}}\NormalTok{)}
+
+\NormalTok{worldSustainabiltyDataSet}\OtherTok{\textless{}{-}}\NormalTok{ worldSustainabiltyDataSet }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{rename}\NormalTok{(}\AttributeTok{CountryCode =} \StringTok{\textasciigrave{}}\AttributeTok{Country.Code}\StringTok{\textasciigrave{}}\NormalTok{)}
+
+\CommentTok{\# Recorremos los nombres y sustitumos basandonos en los códigos}
+\CommentTok{\# de Dictionary}
+
+\NormalTok{currColNames }\OtherTok{\textless{}{-}} \FunctionTok{names}\NormalTok{(worldSustainabiltyDataSet)}
+
+\NormalTok{updateCurrNames }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(newColName, currColNames)\{}
+\CommentTok{\# Primero obtenemos los códigos en base al campo field}
+\NormalTok{regimeField\_Code }\OtherTok{\textless{}{-}}\NormalTok{ data\_dictionaryDataSet }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{filter}\NormalTok{(}\FunctionTok{str\_detect}\NormalTok{(Field,newColName)) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{select}\NormalTok{(Code,Field)}
+
+\CommentTok{\# Ahora sustituimos por la nueva }
+\NormalTok{currColNames[}\FunctionTok{grep}\NormalTok{(regimeField\_Code}\SpecialCharTok{$}\NormalTok{Code, currColNames)]}\OtherTok{\textless{}{-}}\NormalTok{ newColName}
+  \FunctionTok{return}\NormalTok{ (currColNames)}
+\NormalTok{\}}
+
+\CommentTok{\# Usamos la funcion }
+\NormalTok{currColNames }\OtherTok{\textless{}{-}}  \FunctionTok{updateCurrNames}\NormalTok{(}\StringTok{\textquotesingle{}Regime\textquotesingle{}}\NormalTok{, currColNames)}
+
+\NormalTok{currColNames }\OtherTok{\textless{}{-}} \FunctionTok{updateCurrNames}\NormalTok{(}\StringTok{\textquotesingle{}Income\textquotesingle{}}\NormalTok{,currColNames)}
+
+\NormalTok{currColNames }\OtherTok{\textless{}{-}} \FunctionTok{updateCurrNames}\NormalTok{(}\StringTok{\textquotesingle{}Region\textquotesingle{}}\NormalTok{, currColNames)}
+
+\FunctionTok{names}\NormalTok{(worldSustainabiltyDataSet) }\OtherTok{\textless{}{-}}\NormalTok{ currColNames}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{head}\NormalTok{(}\FunctionTok{names}\NormalTok{(worldSustainabiltyDataSet),}\DecValTok{3}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "Country"     "CountryCode" "Year"
+\end{verbatim}
+
+\section{2 Tipos de datos y Posibles
+Inconsistencias}\label{tipos-de-datos-y-posibles-inconsistencias}
+
+\subsection{2.1 Variables Cuantitativas}\label{variables-cuantitativas}
+
+Comenzaremos comprobando los valores centinelas y los valores nulos o
+erroneos posibles.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{cleanNames }\OtherTok{\textless{}{-}} \FunctionTok{names}\NormalTok{(worldSustainabiltyDataSet)}
+\CommentTok{\# Comenzamos solo por los null}
+\NormalTok{worldSustainabiltyDataSet }\OtherTok{\textless{}{-}}\NormalTok{ worldSustainabiltyDataSet }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{replace}\NormalTok{(.}\SpecialCharTok{==}\StringTok{"NULL"}\NormalTok{, }\ConstantTok{NA}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Sustituimos por todas las variables}
+
+\NormalTok{worldSustainabiltyDataSet }\OtherTok{\textless{}{-}}\NormalTok{ worldSustainabiltyDataSet }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{replace}\NormalTok{(.}\SpecialCharTok{==}\StringTok{"N/A"}\NormalTok{, }\ConstantTok{NA}\NormalTok{)}
+
+\NormalTok{worldSustainabiltyDataSet }\OtherTok{\textless{}{-}}\NormalTok{ worldSustainabiltyDataSet }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{replace}\NormalTok{(.}\SpecialCharTok{==}\StringTok{"{-}"}\NormalTok{, }\ConstantTok{NA}\NormalTok{)}
+
+\NormalTok{worldSustainabiltyDataSet }\OtherTok{\textless{}{-}}\NormalTok{ worldSustainabiltyDataSet }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{replace}\NormalTok{(.}\SpecialCharTok{==}\StringTok{"NA"}\NormalTok{, }\ConstantTok{NA}\NormalTok{)}
+
+\NormalTok{worldSustainabiltyDataSet }\OtherTok{\textless{}{-}}\NormalTok{ worldSustainabiltyDataSet }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{replace}\NormalTok{(.}\SpecialCharTok{==}\StringTok{""}\NormalTok{, }\ConstantTok{NA}\NormalTok{)}
+
+\NormalTok{worldSustainabiltyDataSet }\OtherTok{\textless{}{-}}\NormalTok{ worldSustainabiltyDataSet }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{replace}\NormalTok{(.}\SpecialCharTok{==}\StringTok{"9999"}\NormalTok{, }\ConstantTok{NA}\NormalTok{)}
+
+\NormalTok{worldSustainabiltyDataSet }\OtherTok{\textless{}{-}}\NormalTok{ worldSustainabiltyDataSet }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{replace}\NormalTok{(.}\SpecialCharTok{==}\StringTok{"Unknown"}\NormalTok{, }\ConstantTok{NA}\NormalTok{)}
+
+\FunctionTok{names}\NormalTok{(worldSustainabiltyDataSet) }\OtherTok{\textless{}{-}}\NormalTok{ cleanNames}
+\end{Highlighting}
+\end{Shaded}
+
+\subsection{2.2 Variables
+cuantitativas}\label{variables-cuantitativas-1}
+
+\subsubsection{2.2.1 Países y códigos de
+países}\label{pauxedses-y-cuxf3digos-de-pauxedses}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# definimos una función para hacer los cambios de formato}
+\NormalTok{colDataFormatter}\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(colToFix)\{}
+\NormalTok{  colToFix }\OtherTok{\textless{}{-}} \FunctionTok{toupper}\NormalTok{(colToFix)}
+\NormalTok{  colToFix }\OtherTok{\textless{}{-}} \FunctionTok{str\_replace\_all}\NormalTok{(colToFix, }\StringTok{" "}\NormalTok{, }\StringTok{"\_"}\NormalTok{)}
+  \FunctionTok{return}\NormalTok{ (colToFix)}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{countryCol }\OtherTok{\textless{}{-}}\NormalTok{ worldSustainabiltyDataSet}\SpecialCharTok{$}\NormalTok{Country}
+\NormalTok{countryCodeCol }\OtherTok{\textless{}{-}}\NormalTok{ worldSustainabiltyDataSet}\SpecialCharTok{$}\NormalTok{CountryCode}
+
+\CommentTok{\# Agregamos los cambios al dataset:}
+\NormalTok{countryCol }\OtherTok{\textless{}{-}} \FunctionTok{colDataFormatter}\NormalTok{(countryCol)}
+\NormalTok{countryCodeCol }\OtherTok{\textless{}{-}} \FunctionTok{colDataFormatter}\NormalTok{(countryCodeCol)}
+\NormalTok{worldSustainabiltyDataSet}\SpecialCharTok{$}\NormalTok{Country }\OtherTok{\textless{}{-}}\NormalTok{ countryCol}
+\NormalTok{worldSustainabiltyDataSet}\SpecialCharTok{$}\NormalTok{CountryCode }\OtherTok{\textless{}{-}}\NormalTok{ countryCodeCol}
+\end{Highlighting}
+\end{Shaded}
+
+Cambios aplicados:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{head}\NormalTok{(}\FunctionTok{unique}\NormalTok{(countryCol),}\DecValTok{4}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "ARUBA"                "ANGOLA"               "ALBANIA"             
+## [4] "UNITED_ARAB_EMIRATES"
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{head}\NormalTok{(}\FunctionTok{unique}\NormalTok{(countryCodeCol),}\DecValTok{4}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "ABW" "AGO" "ALB" "ARE"
+\end{verbatim}
+
+\subsubsection{2.2.2 Continente}\label{continente}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{worldSustainabiltyDataSet}\SpecialCharTok{$}\NormalTok{Continent }\OtherTok{\textless{}{-}} \FunctionTok{colDataFormatter}\NormalTok{(worldSustainabiltyDataSet}\SpecialCharTok{$}\NormalTok{Continent)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{head}\NormalTok{(}\FunctionTok{unique}\NormalTok{(worldSustainabiltyDataSet}\SpecialCharTok{$}\NormalTok{Continent))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "NORTH_AMERICA" "AFRICA"        "EUROPE"        "ASIA"         
+## [5] "SOUTH_AMERICA" "OCEANIA"
+\end{verbatim}
+
+\subsubsection{2.2.3 Régimen}\label{ruxe9gimen}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{worldSustainabiltyDataSet}\SpecialCharTok{$}\NormalTok{Regime }\OtherTok{\textless{}{-}} \FunctionTok{colDataFormatter}\NormalTok{(worldSustainabiltyDataSet}\SpecialCharTok{$}\NormalTok{Regime)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{head}\NormalTok{(}\FunctionTok{unique}\NormalTok{(worldSustainabiltyDataSet}\SpecialCharTok{$}\NormalTok{Regime))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] NA                    "CLOSED_AUTOCRACY"    "ELECTORAL_AUTOCRACY"
+## [4] "ELECTORAL_DEMOCRACY" "LIBERAL_DEMOCRACY"
+\end{verbatim}
+
+\subsubsection{2.2.4 Región}\label{regiuxf3n}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{worldSustainabiltyDataSet}\SpecialCharTok{$}\NormalTok{Region }\OtherTok{\textless{}{-}} \FunctionTok{colDataFormatter}\NormalTok{(worldSustainabiltyDataSet}\SpecialCharTok{$}\NormalTok{Region)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{head}\NormalTok{(}\FunctionTok{unique}\NormalTok{(worldSustainabiltyDataSet}\SpecialCharTok{$}\NormalTok{Region))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "LATIN_AMERICA_AND_CARIBBEAN"      "SUB-SAHARAN_AFRICA"              
+## [3] "EUROPE_AND_NORTHERN_AMERICA"      "NORTHERN_AFRICA_AND_WESTERN_ASIA"
+## [5] "OCEANIA"                          "CENTRAL_AND_SOUTHERN_ASIA"
+\end{verbatim}
+
+\subsubsection{2.2.5 Región}\label{regiuxf3n-1}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{worldSustainabiltyDataSet}\SpecialCharTok{$}\NormalTok{Income }\OtherTok{\textless{}{-}} \FunctionTok{colDataFormatter}\NormalTok{(worldSustainabiltyDataSet}\SpecialCharTok{$}\NormalTok{Income)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{head}\NormalTok{(}\FunctionTok{unique}\NormalTok{(worldSustainabiltyDataSet}\SpecialCharTok{$}\NormalTok{Income))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "HIGH_INCOME"         "LOW_INCOME"          "LOWER-MIDDLE_INCOME"
+## [4] "UPPER-MIDDLE_INCOME" NA
+\end{verbatim}
+
+\section{3 Valores Extremos}\label{valores-extremos}
+
+\subsection{3.1 Desigualdad (GINI)}\label{desigualdad-gini}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+  \CommentTok{\# Renombramos las columnas}
+  \CommentTok{\# Corresponde a la columna SI.POV.GINI}
+\NormalTok{  worldSustainabiltyDataSet }\OtherTok{\textless{}{-}}\NormalTok{ worldSustainabiltyDataSet }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{rename}\NormalTok{( }\AttributeTok{GINI =} \StringTok{\textasciigrave{}}\AttributeTok{Gini.index..World.Bank.estimate....SI.POV.GINI}\StringTok{\textasciigrave{}}\NormalTok{)}
+  
+  \CommentTok{\# Corresponde al codigo GH.EM.IC.LUF}
+\NormalTok{  worldSustainabiltyDataSet }\OtherTok{\textless{}{-}}\NormalTok{ worldSustainabiltyDataSet }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{rename}\NormalTok{( }\AttributeTok{GHE =} \StringTok{\textasciigrave{}}\AttributeTok{Annual.production.based.emissions.of.carbon.dioxide..CO2..measured.in.million.tonnes...GH.EM.IC.LUF}\StringTok{\textasciigrave{}}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Creamos una tabla con las 3 columnas a trabajar}
+\CommentTok{\# Country GINI YEAR}
+
+\NormalTok{tblCountryGiniYear }\OtherTok{\textless{}{-}}\NormalTok{ worldSustainabiltyDataSet }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{select}\NormalTok{(Country, GINI,Year)}
+\CommentTok{\# Vistazo rápido de las columnas}
+\FunctionTok{summary}\NormalTok{(tblCountryGiniYear}\SpecialCharTok{$}\NormalTok{Country)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##    Length     Class      Mode 
+##      3287 character character
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{summary}\NormalTok{(tblCountryGiniYear}\SpecialCharTok{$}\NormalTok{GINI)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    NA's 
+##   23.70   30.90   35.60   37.51   42.80   64.80    1984
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{summary}\NormalTok{(tblCountryGiniYear}\SpecialCharTok{$}\NormalTok{Year)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##    2000    2004    2009    2009    2014    2018
+\end{verbatim}
+
+Comenzaremos con la realización de una boxplot para visualizar los datos
+de forma sencilla:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{boxplot}\NormalTok{(tblCountryGiniYear}\SpecialCharTok{$}\NormalTok{GINI, }\AttributeTok{main=}\StringTok{"GINI BOXPLOT"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\pandocbounded{\includegraphics[keepaspectratio]{A1_Resolución_files/figure-latex/unnamed-chunk-21-1.pdf}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{boxplot}\NormalTok{(tblCountryGiniYear}\SpecialCharTok{$}\NormalTok{Year, }\AttributeTok{main=}\StringTok{"Year BOXPLOT"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\pandocbounded{\includegraphics[keepaspectratio]{A1_Resolución_files/figure-latex/unnamed-chunk-21-2.pdf}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Comprobamos los stats para ver claramente los outliers}
+\FunctionTok{boxplot.stats}\NormalTok{(tblCountryGiniYear}\SpecialCharTok{$}\NormalTok{GINI)}\SpecialCharTok{$}\NormalTok{out}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 61.6 64.7 63.3 61.0 64.8 63.0 63.4 63.0
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Vamos a ver cuantos registr}
+\FunctionTok{length}\NormalTok{(tblCountryGiniYear}\SpecialCharTok{$}\NormalTok{GINI)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 3287
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{length}\NormalTok{(}\FunctionTok{which}\NormalTok{(}\FunctionTok{is.na}\NormalTok{(tblCountryGiniYear}\SpecialCharTok{$}\NormalTok{GINI)))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 1984
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{length}\NormalTok{(}\FunctionTok{boxplot.stats}\NormalTok{(tblCountryGiniYear}\SpecialCharTok{$}\NormalTok{GINI)}\SpecialCharTok{$}\NormalTok{out)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 8
+\end{verbatim}
+
+Como podemos ver en el ``boxplot'' de GINI tenemos una gran cantidad de
+valores atípicos, existiendo una asímetría de datos positiva, puesto que
+tenemos bastantes valores outliers en GINI, esto conlleva cierta
+dispersión ya que tenemos valores alejados de la media y mediana. Si nos
+centramos en los valores del ``boxplot'' de Year podemos observar como
+los mismos tienen cierta dispersión.
+
+En cuanto a los valores outliers estos requieren una transformación
+puesto que aunque son pocos pueden distorsionar el estudio de valores
+esenciales como son la media/mediana, por lo que aplicamos
+winsorización:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{tblCountryGiniYear}\SpecialCharTok{$}\NormalTok{GINI }\OtherTok{\textless{}{-}}\NormalTok{ psych}\SpecialCharTok{::}\FunctionTok{winsor}\NormalTok{(}
+  \AttributeTok{x =}\NormalTok{ tblCountryGiniYear}\SpecialCharTok{$}\NormalTok{GINI,}
+  \AttributeTok{trim =} \FloatTok{0.01}
+\NormalTok{)}
+
+\FunctionTok{boxplot}\NormalTok{(tblCountryGiniYear}\SpecialCharTok{$}\NormalTok{GINI, }\AttributeTok{main=}\StringTok{"Wisorized GINI"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\pandocbounded{\includegraphics[keepaspectratio]{A1_Resolución_files/figure-latex/unnamed-chunk-22-1.pdf}}
+
+\subsection{3.2 Green House Emissions}\label{green-house-emissions}
+
+\subsubsection{1ª Parte}\label{uxaa-parte}
+
+Estudiaremos los valores outliers de forma similar al apartado 3.1:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{boxplot}\NormalTok{(worldSustainabiltyDataSet}\SpecialCharTok{$}\NormalTok{GHE, }\AttributeTok{main=}\StringTok{"GHE Boxplot"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\pandocbounded{\includegraphics[keepaspectratio]{A1_Resolución_files/figure-latex/unnamed-chunk-23-1.pdf}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{summary}\NormalTok{(worldSustainabiltyDataSet}\SpecialCharTok{$}\NormalTok{GHE)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##     Min.  1st Qu.   Median     Mean  3rd Qu.     Max.     NA's 
+##    0.048    2.426   12.621  174.647   72.012 9956.569        2
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Comparamos cuantos outliers hay sobre la población.}
+\FunctionTok{length}\NormalTok{(worldSustainabiltyDataSet}\SpecialCharTok{$}\NormalTok{GHE)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 3287
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{length}\NormalTok{(}\FunctionTok{boxplot.stats}\NormalTok{(worldSustainabiltyDataSet}\SpecialCharTok{$}\NormalTok{GHE)}\SpecialCharTok{$}\NormalTok{out)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 517
+\end{verbatim}
+
+Como podemos apreciar existe una gran cantidad de valores outliers
+dentro de los datos, pero en este caso no tiene sentido su
+transformación puesto que corresponde a aproximadamente el 16\% del
+total de los mismos. En caso de realizar una transformación únicamente
+conseguiriamos alterar el resultado del estudio, al eliminar tantos
+resultados.
+
+\subsubsection{2ª Parte}\label{uxaa-parte-1}
+
+Seleccionamos en una lista compuesta por los países más contaminantes en
+el año 2018, ordenandola de mayor a menor cantidad de emisiones.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Pillamos los valores de 2018}
+\NormalTok{tblCountryGHE }\OtherTok{\textless{}{-}}\NormalTok{ worldSustainabiltyDataSet }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{filter}\NormalTok{(Year }\SpecialCharTok{==} \DecValTok{2018}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{select}\NormalTok{(Country, GHE)}
+
+\CommentTok{\# filtramos ahora por los valores outliers}
+
+\NormalTok{tblCountryGHE }\OtherTok{\textless{}{-}}\NormalTok{ tblCountryGHE }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{filter}\NormalTok{(GHE }\SpecialCharTok{\textgreater{}=} \FunctionTok{min}\NormalTok{(}\FunctionTok{boxplot.stats}\NormalTok{(tblCountryGHE}\SpecialCharTok{$}\NormalTok{GHE)}\SpecialCharTok{$}\NormalTok{out) ) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{arrange}\NormalTok{(}\FunctionTok{desc}\NormalTok{(GHE))}
+
+\FunctionTok{head}\NormalTok{(tblCountryGHE)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##              Country      GHE
+## 1              CHINA 9956.569
+## 2      UNITED_STATES 5424.882
+## 3              INDIA 2591.324
+## 4 RUSSIAN_FEDERATION 1691.360
+## 5              JAPAN 1135.688
+## 6 IRAN,_ISLAMIC_REP.  755.402
+\end{verbatim}
+
+\section{4 Correlaciones}\label{correlaciones}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Codigos implicados: }
+\CommentTok{\# SP.DYN.LE00.IN ==\textgreater{} LE [48]}
+\CommentTok{\# SN\_ITK\_DEFC ==\textgreater{} DEFC [36]}
+\CommentTok{\# SP\_ACS\_BSRVH2O ==\textgreater{} BSRVW [40]}
+\CommentTok{\# SI\_POV\_DAY1 ==\textgreater{} POVL [37]}
+\CommentTok{\# SE.PRM.UNER.ZS ==\textgreater{} COSCH [13]}
+\CommentTok{\# NY.GDP.MKTP.CD ==\textgreater{} GDP [19]}
+
+\CommentTok{\# Renombramos y extraemos para mayor facilidad}
+
+\NormalTok{worldSustainabiltyDataSet }\OtherTok{\textless{}{-}}\NormalTok{ worldSustainabiltyDataSet }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{rename}\NormalTok{( }\AttributeTok{LE =} \StringTok{\textasciigrave{}}\AttributeTok{Life.expectancy.at.birth..total..years....SP.DYN.LE00.IN}\StringTok{\textasciigrave{}}\NormalTok{)}
+
+\NormalTok{worldSustainabiltyDataSet }\OtherTok{\textless{}{-}}\NormalTok{ worldSustainabiltyDataSet }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{rename}\NormalTok{( }\AttributeTok{DEFC =} \StringTok{\textasciigrave{}}\AttributeTok{Prevalence.of.undernourishment.......SN\_ITK\_DEFC}\StringTok{\textasciigrave{}}\NormalTok{)}
+
+\NormalTok{worldSustainabiltyDataSet }\OtherTok{\textless{}{-}}\NormalTok{ worldSustainabiltyDataSet }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{rename}\NormalTok{( }\AttributeTok{BSRVW =} \StringTok{\textasciigrave{}}\AttributeTok{Proportion.of.population.using.basic.drinking.water.services.......SP\_ACS\_BSRVH2O}\StringTok{\textasciigrave{}}\NormalTok{)}
+
+\NormalTok{worldSustainabiltyDataSet }\OtherTok{\textless{}{-}}\NormalTok{ worldSustainabiltyDataSet }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{rename}\NormalTok{( }\AttributeTok{POVL =} \StringTok{\textasciigrave{}}\AttributeTok{Proportion.of.population.below.international.poverty.line.......SI\_POV\_DAY1}\StringTok{\textasciigrave{}}\NormalTok{)}
+
+\NormalTok{worldSustainabiltyDataSet }\OtherTok{\textless{}{-}}\NormalTok{ worldSustainabiltyDataSet }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{rename}\NormalTok{( }\AttributeTok{COSCH =} \StringTok{\textasciigrave{}}\AttributeTok{Children.out.of.school....of.primary.school.age....SE.PRM.UNER.ZS}\StringTok{\textasciigrave{}}\NormalTok{)}
+
+\NormalTok{worldSustainabiltyDataSet }\OtherTok{\textless{}{-}}\NormalTok{ worldSustainabiltyDataSet }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{rename}\NormalTok{( }\AttributeTok{GDP =} \StringTok{\textasciigrave{}}\AttributeTok{GDP..current.US.....NY.GDP.MKTP.CD}\StringTok{\textasciigrave{}}\NormalTok{)}
+
+\NormalTok{colsToCorr }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\StringTok{"LE"}\NormalTok{, }\StringTok{"DEFC"}\NormalTok{, }\StringTok{"BSRVW"}\NormalTok{, }\StringTok{"POVL"}\NormalTok{, }\StringTok{"COSCH"}\NormalTok{, }\StringTok{"GDP"}\NormalTok{ )}
+
+\NormalTok{dataToCorr }\OtherTok{\textless{}{-}}\NormalTok{ worldSustainabiltyDataSet }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{select}\NormalTok{(}\FunctionTok{all\_of}\NormalTok{(colsToCorr))}
+
+\FunctionTok{head}\NormalTok{(dataToCorr)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##       LE DEFC BSRVW POVL   COSCH        GDP
+## 1     NA   NA    NA   NA 1.60268 1873452514
+## 2 73.853   NA    NA   NA 0.32258 1920111732
+## 3 73.937   NA    NA   NA 1.81634 1941340782
+## 4 74.038   NA    NA   NA 3.32156 2021229050
+## 5 74.156   NA    NA   NA 2.17652 2228491620
+## 6 74.287   NA    NA   NA 1.64077 2330726257
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{corrMatrix }\OtherTok{\textless{}{-}} \FunctionTok{cor}\NormalTok{(dataToCorr, }
+                  \AttributeTok{use =} \StringTok{"pairwise.complete.obs"}\NormalTok{) }\CommentTok{\#Ya que tiene elementos NA}
+\NormalTok{corrMatrix }\OtherTok{\textless{}{-}} \FunctionTok{round}\NormalTok{(corrMatrix,}\DecValTok{2}\NormalTok{) }\CommentTok{\# Para tratar con 2 decimales}
+
+\NormalTok{corrMatrix}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##          LE  DEFC BSRVW  POVL COSCH   GDP
+## LE     1.00 -0.57  0.77 -0.77 -0.66  0.20
+## DEFC  -0.57  1.00 -0.67  0.68  0.42 -0.17
+## BSRVW  0.77 -0.67  1.00 -0.80 -0.58  0.14
+## POVL  -0.77  0.68 -0.80  1.00  0.69 -0.12
+## COSCH -0.66  0.42 -0.58  0.69  1.00 -0.12
+## GDP    0.20 -0.17  0.14 -0.12 -0.12  1.00
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Usamos la libreria corrplot para mostrar de forma simplificada la matriz}
+\FunctionTok{corrplot}\NormalTok{(corrMatrix, }
+         \AttributeTok{type =} \StringTok{"upper"}\NormalTok{, }
+         \AttributeTok{order =} \StringTok{"hclust"}\NormalTok{,  }
+         \AttributeTok{tl.col =} \StringTok{"black"}\NormalTok{, }
+         \AttributeTok{tl.srt =} \DecValTok{45}
+\NormalTok{         )}
+\end{Highlighting}
+\end{Shaded}
+
+\pandocbounded{\includegraphics[keepaspectratio]{A1_Resolución_files/figure-latex/unnamed-chunk-25-1.pdf}}
+
+Por los resultados obtenidos existe cierta correlación, una correlación
+relativamente elevada puesto que la mayor correlación que existe es una
+correlación negativa entre las variables POVL (población viviendo bajo
+el umbral de la pobreza) y LE (Expectativa de Vida) y POVL con BSRVW
+(Población que usa fuentes básicas de agua), siendo la primera de -0.77
+(POVL \textless-\textgreater{} LE) y -0.8 (POVL \textless-\textgreater{}
+BSRW).
+
+Es decir, la esperanza de vida está fuertemente correlacionada con los
+indicadores sociales y de servicios básicos (Pobreza, Educación y Acceso
+al Agua) más que con el indicador económico crudo (PIB). Esto sugiere
+que la inversión en bienestar social y servicios esenciales es más
+efectiva para mejorar la salud de la población que el crecimiento
+económico general por sí solo.
+
+\section{5 Imputación}\label{imputaciuxf3n}
+
+Con respecto a este apartado usaremos las medias de los vecinos más
+cercanos usando las variables con una mayor correlación, es decir,
+mediante las conclusiones obtenidas en el apartado anterior tenemos que
+las variables a utilizar serán: BSRVW, POVL y COSCH puesto que son
+aquellas con una correlación lo suficientemente alta.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Comprobamos que columnas estan vacías para aplicarle la imputación}
+\NormalTok{tblNAYear }\OtherTok{\textless{}{-}}\NormalTok{ worldSustainabiltyDataSet }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{group\_by}\NormalTok{(Year) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{filter}\NormalTok{(}\FunctionTok{all}\NormalTok{(}\FunctionTok{is.na}\NormalTok{(LE)) }\SpecialCharTok{==} \ConstantTok{TRUE}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{select}\NormalTok{(Year) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{ungroup}\NormalTok{()}
+
+\FunctionTok{unique}\NormalTok{(tblNAYear}\SpecialCharTok{$}\NormalTok{Year)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 2000
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Creamos una tabla con los LE del año 2001 ya que no puede tener NA a la hora de hacer kNN}
+\NormalTok{datoskNNImputados }\OtherTok{\textless{}{-}}\NormalTok{ worldSustainabiltyDataSet }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{filter}\NormalTok{(Year }\SpecialCharTok{==} \DecValTok{2001}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{select}\NormalTok{(LE, BSRVW, POVL, COSCH )}
+
+\CommentTok{\# 2. Aplicar kNN. Imputamos LE (variable)}
+\NormalTok{datoskNNClean }\OtherTok{\textless{}{-}} \FunctionTok{kNN}\NormalTok{(}
+  \AttributeTok{data =}\NormalTok{ datoskNNImputados,}
+  \AttributeTok{variable =} \FunctionTok{c}\NormalTok{(}\StringTok{"LE"}\NormalTok{),}
+  \AttributeTok{k =} \DecValTok{5}\NormalTok{,}
+  \AttributeTok{dist\_var =} \FunctionTok{c}\NormalTok{(}\StringTok{"BSRVW"}\NormalTok{, }\StringTok{"POVL"}\NormalTok{, }\StringTok{"COSCH"}\NormalTok{)}
+\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##    BSRVW     POVL    COSCH    BSRVW     POVL    COSCH 
+##  29.0000   0.0000   0.0000 100.0000  68.4000  69.4751
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\#Aqui tenemos los datos de KNN con datos ya imputados}
+\FunctionTok{head}\NormalTok{(datoskNNClean}\SpecialCharTok{$}\NormalTok{LE)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 73.853 47.059 74.288 74.544 73.755 71.800
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Preparamos la sustitución agregando una columna }
+\NormalTok{worldSustainabiltyDataSet}\SpecialCharTok{$}\NormalTok{LE2000 }\OtherTok{\textless{}{-}}\NormalTok{ datoskNNClean}\SpecialCharTok{$}\NormalTok{LE}
+
+\CommentTok{\# Hacemos un mutate para sustituir los valores del año 2000 por los valores guardados en LE2000}
+\NormalTok{worldSustainabiltyDataSet }\OtherTok{\textless{}{-}}\NormalTok{ worldSustainabiltyDataSet }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}
+    \AttributeTok{LE =} \FunctionTok{case\_when}\NormalTok{(}
+      \CommentTok{\# Condición: Si el año es 2000, usa el valor imputado}
+\NormalTok{      Year }\SpecialCharTok{==} \DecValTok{2000} \SpecialCharTok{\textasciitilde{}}\NormalTok{ LE2000,}
+      \CommentTok{\# Si el año no es 2000, mantén el valor original de la columna LE}
+      \ConstantTok{TRUE} \SpecialCharTok{\textasciitilde{}}\NormalTok{ LE}
+\NormalTok{    )}
+\NormalTok{  ) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{select}\NormalTok{(}\SpecialCharTok{{-}}\NormalTok{LE2000) }\CommentTok{\# Eliminar la columna auxiliar}
+\end{Highlighting}
+\end{Shaded}
+
+\section{6 Tabla resumen}\label{tabla-resumen}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Variables relacionadas:}
+\CommentTok{\# SI\_POV\_DAY1 {-}{-}\textgreater{} POVL}
+\CommentTok{\# GINI}
+\CommentTok{\# LE }
+
+\CommentTok{\# Se pide calcular las medidas de tendencia central y dispersión (robustas y no robustas)}
+
+
+
+\CommentTok{\# Datos: Agrupamos los datos por regiones, mostramos solo los datos más recientes.}
+
+\CommentTok{\# Comenzamos agrupando los distintos datos:}
+
+\NormalTok{recentData }\OtherTok{\textless{}{-}}\NormalTok{ worldSustainabiltyDataSet }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{group\_by}\NormalTok{(Region) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{filter}\NormalTok{(Year }\SpecialCharTok{==} \FunctionTok{max}\NormalTok{(Year, }\AttributeTok{na.rm =} \ConstantTok{TRUE}\NormalTok{)) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{select}\NormalTok{(POVL, GINI, LE, Region)}
+
+
+\CommentTok{\# Realizamos los cálculos al mismo tiempo y después separamos en tablas}
+\NormalTok{recentData }\OtherTok{\textless{}{-}}\NormalTok{ recentData }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{summarise}\NormalTok{(}
+    \CommentTok{\# Aplicar las cuatro funciones a las variables definidas}
+    \FunctionTok{across}\NormalTok{(}
+      \AttributeTok{.cols =} \FunctionTok{all\_of}\NormalTok{(}\FunctionTok{c}\NormalTok{(}\StringTok{\textquotesingle{}LE\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}GINI\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}POVL\textquotesingle{}}\NormalTok{)), }
+      \AttributeTok{.fns =} \FunctionTok{list}\NormalTok{(}
+        \CommentTok{\# TB1: Tendencia Central}
+        \AttributeTok{Media =} \SpecialCharTok{\textasciitilde{}} \FunctionTok{mean}\NormalTok{(.x, }\AttributeTok{na.rm =} \ConstantTok{TRUE}\NormalTok{), }\CommentTok{\# No Robusta}
+        \AttributeTok{Mediana =} \SpecialCharTok{\textasciitilde{}} \FunctionTok{median}\NormalTok{(.x, }\AttributeTok{na.rm =} \ConstantTok{TRUE}\NormalTok{), }\CommentTok{\# Robusta}
+        
+        \CommentTok{\# Dispersión}
+        \AttributeTok{Desviacion\_Estandar =} \SpecialCharTok{\textasciitilde{}} \FunctionTok{sd}\NormalTok{(.x, }\AttributeTok{na.rm =} \ConstantTok{TRUE}\NormalTok{), }\CommentTok{\# No Robusta}
+        \AttributeTok{Desviacion\_Absoluta\_Mediana =} \SpecialCharTok{\textasciitilde{}} \FunctionTok{mad}\NormalTok{(.x, }\AttributeTok{na.rm =} \ConstantTok{TRUE}\NormalTok{) }\CommentTok{\# Robusta}
+\NormalTok{      ),}
+      \AttributeTok{.names =} \StringTok{"\{.col\}\_\{.fn\}"} \CommentTok{\#  columnas dinámicas (\textquotesingle{}LE\_Media\textquotesingle{}, \textquotesingle{}GINI\_Mediana\textquotesingle{},... )}
+\NormalTok{    ),}
+    \AttributeTok{.groups =} \StringTok{\textquotesingle{}drop\textquotesingle{}} \CommentTok{\# No requerimos hacer agrupaciones tras realizar el cálculo.}
+\NormalTok{  )}
+
+\CommentTok{\# Tabla 1 : Medidas de tendencia Central (media, mediana)}
+
+\NormalTok{centralTendencyTable }\OtherTok{\textless{}{-}}\NormalTok{ recentData }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{select}\NormalTok{(}
+\NormalTok{    Region,}
+    \FunctionTok{ends\_with}\NormalTok{(}\StringTok{"Media"}\NormalTok{),}
+    \FunctionTok{ends\_with}\NormalTok{(}\StringTok{"Mediana"}\NormalTok{)}
+\NormalTok{  )}
+
+\FunctionTok{print}\NormalTok{(centralTendencyTable)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## # A tibble: 8 x 10
+##   Region        LE_Media GINI_Media POVL_Media LE_Mediana LE_Desviacion_Absolu~1
+##   <chr>            <dbl>      <dbl>      <dbl>      <dbl>                  <dbl>
+## 1 CENTRAL_AND_~     72.5       32.3      1.38        71.5                   1.98
+## 2 EASTERN_AND_~     75.4       37.3      3.1         75.5                   8.73
+## 3 EUROPE_AND_N~     79.1       31.0      0.448       80.9                   3.61
+## 4 LATIN_AMERIC~     74.9       45.4      3.21        75.0                   2.68
+## 5 NORTHERN_AFR~     76.0       34.3      1.18        76.5                   3.04
+## 6 OCEANIA           74.3      NaN      NaN           71.8                   4.43
+## 7 SUB-SAHARAN_~     62.6       38.6     33.1         63.0                   4.40
+## 8 <NA>             NaN        NaN       38.5         NA                    NA   
+## # i abbreviated name: 1: LE_Desviacion_Absoluta_Mediana
+## # i 4 more variables: GINI_Mediana <dbl>,
+## #   GINI_Desviacion_Absoluta_Mediana <dbl>, POVL_Mediana <dbl>,
+## #   POVL_Desviacion_Absoluta_Mediana <dbl>
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Tabla 2 : Medias de dispersión (desviación estandar, desviación absoluta con respecto a la mediana)}
+
+\NormalTok{dispersionTable }\OtherTok{\textless{}{-}}\NormalTok{ recentData }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{select}\NormalTok{(}
+\NormalTok{    Region, }
+    \FunctionTok{ends\_with}\NormalTok{(}\StringTok{"Desviacion\_Estandar"}\NormalTok{), }
+    \FunctionTok{ends\_with}\NormalTok{(}\StringTok{"Desviacion\_Absoluta\_Mediana"}\NormalTok{)}
+\NormalTok{  )}
+
+\FunctionTok{print}\NormalTok{(dispersionTable)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## # A tibble: 8 x 7
+##   Region    LE_Desviacion_Estandar GINI_Desviacion_Esta~1 POVL_Desviacion_Esta~2
+##   <chr>                      <dbl>                  <dbl>                  <dbl>
+## 1 CENTRAL_~                   3.31                   6.73                  2.03 
+## 2 EASTERN_~                   6.16                   3.23                  3.64 
+## 3 EUROPE_A~                   3.51                   4.61                  0.733
+## 4 LATIN_AM~                   3.31                   4.35                  3.91 
+## 5 NORTHERN~                   3.13                   5.78                  1.95 
+## 6 OCEANIA                     6.44                  NA                    NA    
+## 7 SUB-SAHA~                   5.03                   8.64                 22.2  
+## 8 <NA>                       NA                     NA                    NA    
+## # i abbreviated names: 1: GINI_Desviacion_Estandar, 2: POVL_Desviacion_Estandar
+## # i 3 more variables: LE_Desviacion_Absoluta_Mediana <dbl>,
+## #   GINI_Desviacion_Absoluta_Mediana <dbl>,
+## #   POVL_Desviacion_Absoluta_Mediana <dbl>
+\end{verbatim}
+
+\end{document}
