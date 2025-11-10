@@ -1,0 +1,68 @@
+---
+title: "A2_Antonio_Rolda_Andrade"
+author: "Antonio Roldán Andrade"
+date: "2025-11-10"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+# Imports necesarios de cara al trabajo a realizar
+library(readxl)
+library(dplyr)
+library(ggplot2)
+```
+
+# 1 Esperanza de Vida
+
+## 1.1 Análisis Descriptivo
+
+Previo al estudio del caso realizo las transformaciones de las columnas para 
+mejor legibilidad.
+
+```{r}
+# Antes de comenzar abrimos el dataset 
+xlsx_location <- "WorldSustainabilityDS_clean.xlsx"
+worldSustainabiltyDataSet <- read_excel(xlsx_location)
+
+# Pasamos ahora a renombrar SP.DYN.LE00.IN
+worldSustainabiltyDataSet <- worldSustainabiltyDataSet %>%
+  rename(LE = `SP.DYN.LE00.IN`)
+# Extraemos las columnas necesarias {LE,Income, Region}
+
+dtLEInReg <- worldSustainabiltyDataSet %>% select(LE, Income,Region)
+
+# Grafico comparando Esperanza de vida y nivel de ingresos
+
+grafico1_1 <- ggplot(
+  data = dtLEInReg,
+  # Mapeamos la variable categórica (Income) al eje X y la numérica (LE) al eje Y
+  mapping = aes(x = Income, y = LE, fill = Income) # Con fill mostramos por color cada grupo de Income
+) +
+  geom_boxplot() +
+  geom_jitter(
+    color = "yellow",
+    size = 0.5,
+    alpha = 0.5, # Transparencia para evitar superposición
+    width = 0.2  # Pequeño desplazamiento horizontal para los puntos
+  ) +
+  labs(
+    title = "Esperanza de Vida (LE) por Nivel de Ingresos",
+    x = "Nivel de Ingresos",
+    y = "Esperanza de Vida al nacer (Años)",
+    fill = "Nivel de Ingresos"
+  )
+# Mostrar el gráfico
+print(grafico1_1)
+
+
+```
+
+
+
+
+
+
+
+
