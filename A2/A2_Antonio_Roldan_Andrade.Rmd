@@ -37,7 +37,6 @@ dtLEInReg <- worldSustainabiltyDataSet %>% select(LE, Income,Region)
 
 grafico1_1 <- ggplot(
   data = dtLEInReg,
-  # Mapeamos la variable categórica (Income) al eje X y la numérica (LE) al eje Y
   mapping = aes(x = Income, y = LE, fill = Income) # Con fill mostramos por color cada grupo de Income
 ) +
   geom_boxplot() +
@@ -55,9 +54,136 @@ grafico1_1 <- ggplot(
   )
 # Mostrar el gráfico
 print(grafico1_1)
+names(worldSustainabiltyDataSet)
+
+```
+
+## 1.2 Hipótesis
+- La pregunta a contrastar es: ¿La esperanza de vida es mayor en los países con alto nivel de ingresos que en el resto?
+
+- Los datos a usar son los pertenencientes a países con ingresos altos (High Income) del 
+último año de los datos (2018)
+
+Por tanto, podemos plantear las siguientes hipótesis:
+  
+  - u1 -> LE High Income
+  - u2 -> LE Resto
+  - H0: u1 = u2
+  - H1: u1 > u2
+
+Realizaremos un test unilateral derecho para verificar la hipótesis nula.
+
+## 1.3 Test
+
+Estamos en un caso en el que se tiene una muestra de datos grandes por lo que se puede 
+asumir que la distribución sigue una distribución normal, puesto que la población es 
+mayor que 30. Además tratamos de un contraste de hipótesis de dos poblaciones (High Income y el resto) independientes sin covarianza conocida.
+
+```{r}
+# Realizamos un filtrado extrayendo los datos que necesitamos
+
+# LE de altos ingresos
+dt1_3 <- worldSustainabiltyDataSet %>%
+  filter(Year == 2018)
+
+# Preparamos la columnas como True o false en caso de High Income o no
+dt1_3 <- dt1_3 %>%
+  filter(!is.na(LE)) %>% # No usamos las columnas con NA
+  # 2. Guardamos el resultado de mutate en IncomeGroup
+  mutate(
+    IncomeGroup = case_when(
+      # Si el ingreso es 'High income', asigna 'Alto Ingreso'
+      Income == "High income" ~ "Alto Ingreso",
+      # Para cualquier otro caso (el resto de ingresos), asigna 'Resto de Ingresos'
+      TRUE ~ "Resto Ingresos"
+    )
+  )
+
+# Realizamos antes de asumir nada sobre las varianzas si estas son iguales 
+alpha <- 1 - 0.95
+m1 <- mean(dt1_3$LE[dt1_3$IncomeGroup == 'Alto Ingreso'])
+m2 <- mean(dt1_3$LE[dt1_3$IncomeGroup == 'Resto Ingresos'])
+n1 <- length(dt1_3$LE[dt1_3$IncomeGroup == 'Alto Ingreso'])
+n2 <- length(dt1_3$LE[dt1_3$IncomeGroup == 'Resto Ingresos'])
+s1 <- sd(dt1_3$LE[dt1_3$IncomeGroup == 'Alto Ingreso'])
+s2 <- sd(dt1_3$LE[dt1_3$IncomeGroup == 'Resto Ingresos'])
+fobs <- (s1*s1)/(s2*s2)
+
+fcritL <- qf(alpha/2, df1 = n1-1, df2= n2-1)
+fcritU <- qf(1 - alpha/2, df1 = n1-1, df2= n2-1)
+
+# Calculamos el pvalue
+pvalue <- min(
+  pf(fobs, df1=n1-1, df2=n2-2, lower.tail = FALSE),
+  pf(fobs, df1=n1-1, df2=n2-2)
+)
+
+c(fobs, fcritL, fcritU, pvalue)
+
+```
+
+Como podemos apreciar se rechaza la hipótesis nula, tanto por caer fuera del intervalo
+de confianza como por el valor de pvalue. Por tanto, las covarianzas son distintas.
+
+## 1.4 Aplicación del Test Estadístico
+
+```{r}
+# Aplicamos t student
+
+t.test(dt1_3$LE[dt1_3$IncomeGroup == 'Alto Ingreso'], dt1_3$LE[dt1_3$IncomeGroup == 'Resto Ingresos'], alternative="greater", var.equal=FALSE)
+
+```
+
+## 1.5 Desarrollo
+
+Dada la situación en la que nos encontramos (covarianza desconocida, poblaciones distintas y no dependientes) tendremos que realizar
+los siguientes cálculos:
+
+```{r}
+# Calculamos el test T de Welch
+
+tWelch <- (m1 - m2) / sqrt( (s1^2/n1) + ( s2^2/n2 ) )
+
+# Calculamos los grados de libertad df
+
+df_num <- ( ( s1^2/n1 ) + (s2^2/n2) )^2
+df_den <- ( (s1^2/n1)^2 / (n1-1) ) + ( (s2^2/n2)^2 / (n2-1) ) 
+df <- df_num / df_den
+# Calculamos el pvalue ==> Queremos comprobar que sea mayor, por lo que unilateral derecho
+# Reuso la variable
+pvalue <- pt(tWelch, df=df, lower.tail = FALSE)
 
 
 ```
+
+## 1.6 Resultados
+
+```{r, echo=FALSE}
+cat("--- Resultados de la Prueba T de Welch (Implementación Propia) ---\n")
+cat(sprintf("Media (µ1) Alto Ingreso: %.4f\n", m1))
+cat(sprintf("Media (µ2) Resto Ingresos: %.4f\n", m2))
+cat(sprintf("Valor Observado (Estadístico t): %.3f\n", tWelch))
+cat(sprintf("Grados de Libertad (df): %.2f\n", df))
+print("Valor p (unilateral, H1: µ1 > µ2):")
+print(pvalue)
+
+```
+
+## 1.7 
+
+Como podemos apreciar el valor calculado es muy similar al obtenido mediante los cálculos realizados con
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
