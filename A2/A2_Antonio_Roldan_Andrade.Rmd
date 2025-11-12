@@ -169,10 +169,165 @@ print(pvalue)
 
 ```
 
-## 1.7 
+## 1.7 Interpretación
 
-Como podemos apreciar el valor calculado es muy similar al obtenido mediante los cálculos realizados con
+Como podemos apreciar el valor calculado es muy similar al obtenido al usar la función que nos proporciona el entorno de R, 
+por lo que podemos decir con una fiabilidad del 95 % que la hipotesis nula no se cumple, por lo que la hipotesis alternativa
+será tomada como correcta, por tanto, podemos afirmar que la esperanza de vida en países con alto ingresos es superior a la 
+de países con menores ingresos.
 
+
+
+# 2 Desigualdad a lo largo del tiempo
+
+**PR2:  ¿La desigualdad se reduce en un período de 10 años? **
+
+```{r}
+# Preparamos los datos: 
+# Usamos la columna SI.POV.GINI ==> renombramos a GINI
+# Rango de tiempo ==> 2008 a 2018
+# Población 1: Todos los países del mundo.
+# Población 2: Países de cuya región == “Europe and Northern America”
+
+dt2 <- worldSustainabiltyDataSet %>% rename( GINI = SI.POV.GINI )
+
+dt2 <- dt2 %>% filter( (Year >= 2008 ) & (Year <=2018 ) )
+
+#Filtramos y preordenados
+dt2EuNorthern <- dt2 %>% 
+  filter(Region == "Europe and Northern America") %>%
+  arrange(desc(GINI))
+
+dt2 <- dt2 %>% arrange(desc(GINI)) # Ordenamos todos los paises
+```
+
+## 2.1 Análisis Descriptivo
+
+```{r}
+# Gráfico comparativo
+dt2 %>%
+  filter(!is.na(GINI)) %>%
+  mutate(Year = as.factor(Year)) %>% # Para que sirva para el gráfico.
+  ggplot(aes(x = Year, y = GINI, fill = Year)) +
+  geom_boxplot() + # Solo la caja y bigotes
+  labs(
+    title = "Desigualdad Global (GINI): 2008 vs 2018",
+    x = "Año",
+    y = "Índice GINI"
+  ) 
+
+dt2EuNorthern %>%
+  filter(!is.na(GINI)) %>%
+  mutate(Year = as.factor(Year)) %>% # Para que sirva para el gráfico.
+  ggplot(aes(x = Year, y = GINI, fill = Year)) +
+  geom_boxplot() + # Solo la caja y bigotes
+  labs(
+    title = "Desigualdad EU y America del Norte (GINI): 2008 vs 2018",
+    x = "Año",
+    y = "Índice GINI"
+  )
+
+# 1. PAÍSES CON MAYOR DESIGUALDAD (GINI más alto)
+
+tbMayorDesigualdadGlobal <- dt2 %>% 
+  filter(!is.na(GINI)) %>% 
+  arrange(desc(GINI)) %>% 
+  head(5) %>%             
+  select(GINI, Country, Region, Year)
+
+tbMayorDesigualdadGlobal
+
+tbMayorDesigualdadEuNA <- dt2EuNorthern %>% 
+  filter(!is.na(GINI)) %>% 
+  arrange(GINI) %>% 
+  head(5) %>%        
+  select(GINI, Country, Region, Year)
+
+tbMayorDesigualdadEuNA
+
+# 2. PAÍSES CON MENOR DESIGUALDAD (GINI más bajo)
+
+tbMenorDesigualdadEuNA <- dt2EuNorthern %>% 
+  filter(!is.na(GINI)) %>% 
+  arrange(GINI) %>% 
+  tail(5) %>%        
+  select(GINI, Country, Region, Year)
+
+tbMenorDesigualdadEuNA
+
+tbMenorDesigualdadGlobal <- dt2 %>% 
+  filter(!is.na(GINI)) %>% 
+  arrange(GINI) %>% 
+  tail(5) %>%        
+  select(GINI, Country, Region, Year)
+
+tbMenorDesigualdadGlobal
+```
+
+## 2.2 Hipótesis
+
+Siendo la pregunta de investigación:  ¿La desigualdad se reduce en un período de 10 años?
+podemos plantear las siguentes hipótesis:
+
+- n1: Población del año 2008, g1 (GINI de 2008)
+- n2: Población del año 2018, g2 (GINI 2018)
+- Hipótesis Nula (h0): g1 = g2
+- Hipótesis Alternativa (h1): g1 > g2
+
+
+## 2.3 Test
+
+No podemos tratar a esta población como muestras dependientes, puesto que no estamos 
+relacionandos los mismos paises entre si, es decir, España 2008 con España 2018.
+Además no tenemos una covarianza puesto que no tratamos a la variable "Año" como algo
+numérico si no de forma categórica.  
+Por tanto, tenemos un caso de contraste de hipótesis de dos poblaciones independientes 
+con una covarianza desconocidas, por lo que usaremos el t de Welch.
+
+## 2.5 Aplicación del Test
+
+```{r}
+# Filtramos p
+dt2 <- dt2 %>% filter(!(is.na(GINI)))
+dt2_2008 <- dt2 %>% filter(Year == 2008)
+dt2_2018 <- dt2 %>% filter(Year == 2018)
+
+# Comprovamos igualdad de varianzas
+# Realizamos antes de asumir nada sobre las varianzas si estas son iguales 
+alpha <- 1 - 0.95
+m1 <- mean(dt2_2008$GINI)
+m2 <- mean(dt2_2018$GINI)
+n1 <- length(dt2_2008$GINI)
+n2 <- length(dt2_2018$GINI)
+s1 <- sd(dt2_2008$GINI)
+s2 <- sd(dt2_2018$GINI)
+fobs <- (s1*s1)/(s2*s2)
+
+fcritL <- qf(alpha/2, df1 = n1-1, df2= n2-1)
+fcritU <- qf(1 - alpha/2, df1 = n1-1, df2= n2-1)
+
+# Calculamos el pvalue
+pvalue <- min(
+  pf(fobs, df1=n1-1, df2=n2-1, lower.tail = FALSE),
+  pf(fobs, df1=n1-1, df2=n2-1)
+)
+
+c(fobs, fcritL, fcritU, pvalue)
+
+
+
+
+```
+Como podemos ver en los valores mostrados, las covarianzas son iguales (h0), ya que 
+se encuentra el valor observado dentro del intervalo de confianza, además el pvalue es mayor que alfa, reforzando así la hipótesis nula.
+
+```{r}
+# Haremos un test de Welch para covarianzas iguales
+t.test(dt2_2008$GINI, dt2_2018$GINI, alternative="greater", var.equal=TRUE)
+
+```
+
+## 2.5 Desarrollo 
 
 
 
