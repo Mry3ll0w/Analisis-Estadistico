@@ -190,6 +190,7 @@ de países con menores ingresos.
 # Población 2: Países de cuya región == “Europe and Northern America”
 
 dt2 <- worldSustainabiltyDataSet %>% rename( GINI = SI.POV.GINI )
+worldSustainabiltyDataSet <- worldSustainabiltyDataSet %>% rename( GINI = SI.POV.GINI )
 
 dt2 <- dt2 %>% filter( (Year >= 2008 ) & (Year <=2018 ) )
 
@@ -382,6 +383,263 @@ podemos aceptar la hipótesis nula, viendose esta apoyada por los valores p obte
 Por tanto podemos afirmar que la desigualdad no se ha reducido en el mundo durante los años 2008 a 2018.
 
 
+
+
+# 3 Desigualdad según el tipo de régimen
+
+**PR3: ¿La proporción de países con mayor desigualdad es diferente entre los países con régimen
+democrático y aquellos con régimen autocrático?**
+
+
+# 3.1 Preparación de los datos
+
+```{r}
+# Agregamos variable HighInequality
+# Valores que toma regime son: ELectoral Autocracy, Closed Autocracy, Electoral Democracy, Liberal Democracy
+
+# 1. Preparación de los datos: Filtrar 2018 y crear la variable HighInequality
+df_proporciones <- worldSustainabiltyDataSet %>%
+  filter(Year == 2018) %>%
+  filter(!is.na(GINI) & !is.na(Regime)) %>% 
+  mutate(
+    HighInequality = ifelse(GINI > 40, 1, 0) # Crear la variable HighInequality (1 si GINI > 40, 0 en caso contrario)
+  )
+
+# 2. Calcular la proporción
+
+tabla_proporcion_regimen <- df_proporciones %>%
+  # Agrupar por el tipo de régimen
+  group_by(Regime) %>%
+  # Calcular la proporción de países con HighInequality = 1
+  summarise(
+    Total_Paises = n(),
+    Paises_Alta_Desigualdad = sum(HighInequality),
+    Proporcion_Alta_Desigualdad = mean(HighInequality) * 100 # Multiplicamos para %
+  ) %>%
+  # Desagrupar y renombrar columnas para la tabla final (mayor legilibilidad)
+  ungroup() %>%
+  select(
+    Regimen = Regime,
+    `Países` = Total_Paises,
+    `Países GINI > 40` = Paises_Alta_Desigualdad,
+    `Proporción (%)` = Proporcion_Alta_Desigualdad
+  )
+
+# Mostrar la tabla de resultados
+print(tabla_proporcion_regimen)
+
+```
+
+## 3.2 Hipótesis
+
+Teniendo la pregunta PR3, extraemos lo siguiente:  
+
+- Población 1: Proporción desigualdad régimen democrático
+- Poblacion 2: Proporción de países régimen autocrático
+
+- Hipótesis Nula (h0): prop1 = prop2
+- Hipótesis Alternativa (h1): prop1 != prop2
+
+
+
+## 3.3 Test
+
+Estamos tratando con proporciones independientes y con covarianza desconocida pero estimable, dado que :
+- Son independientes puesto que no estamos tratando de relacionar el mismo país en distintas franjas de tiempo, si no que tenemos una compartiva con múltiples países entre sí.
+- La varianza es desconocida puesto que estamos usando datos muestrales para estimar las proporciones poblacionales.  
+Además, el test a realizar ha de ser bilateral puesto que necesitamos probar que las proporciones no sean iguales.
+
+Por tanto, ya que tenemos unas poblaciones de tamaño reducido, por lo que usaremos el test de Fisher.
+
+## 3.4 Aplicación del test
+
+Al estar en el caso de una proporción no es necesario realizar test de homocedasticidad, puesto que la varianza de la proporción
+esta ligada a ella misma.
+
+
+```{r}
+# Tenemos que recalcular los datos, ya que a nivel visual nos interesa mostrar las distintas democracias y autocracias 
+# A nivel de cálculo solo diferenciaremos entre democracias y autocracias.
+
+
+# 1. Cambiamos los datos en regime para que sea binario
+df_proporciones <- df_proporciones %>%
+  mutate(
+    Regime_Binario = case_when(
+      Regime %in% c("Closed Autocracy", "Electoral Autocracy") ~ "Autocratic",
+      Regime %in% c("Electoral Democracy", "Liberal Democracy") ~ "Democratic"
+    )
+  )
+
+# 2. Recalcular las sumas de éxitos y totales para los 2 grupos (preparación para el Z Test)
+datos_test_fisher <- df_proporciones %>%
+  filter(Regime_Binario %in% c("Democratic", "Autocratic")) %>%
+  group_by(Regime_Binario) %>%
+  summarise(
+    Exitos = sum(HighInequality),
+    N_Total = n()
+  ) %>%
+  ungroup()
+
+print(datos_test_fisher)
+
+# 3. Extraer los datos:
+exitos_dem <- datos_test_fisher %>% filter(Regime_Binario == "Democratic") %>% pull(Exitos)
+n_dem <- datos_test_fisher %>% filter(Regime_Binario == "Democratic") %>% pull(N_Total)
+
+exitos_aut <- datos_test_fisher %>% filter(Regime_Binario == "Autocratic") %>% pull(Exitos)
+n_aut <- datos_test_fisher %>% filter(Regime_Binario == "Autocratic") %>% pull(N_Total)
+
+# 1. Definir la matriz de contingencia (Filas: Tipo de Régimen; Columnas: Desigualdad)
+# Relleno de la matriz: [A_Exitos, A_Fracasos; D_Exitos, D_Fracasos]
+matriz_fisher <- matrix(
+  c(exitos_aut, n_aut - exitos_aut, # Autocrático: Éxitos y Fracasos
+    exitos_dem, n_dem - exitos_dem), # Democrático: Éxitos y Fracasos
+  nrow = 2,
+  byrow = TRUE # Indica como introducimos por filas (primero Autocrático, luego Democrático)
+)
+
+# Nombrar las dimensiones (Mayor legilibilidad)
+rownames(matriz_fisher) <- c("Autocratic", "Democratic")
+colnames(matriz_fisher) <- c("GINI > 40 (Exito)", "GINI <= 40 (Fracaso)")
+
+print(matriz_fisher)
+
+# 4. Realizamos el cálculo
+
+test_fisher_resultado <- fisher.test(
+  matriz_fisher, 
+  alternative = "two.sided" # Ya que el test es bilateral
+)
+
+print(test_fisher_resultado)
+
+```
+
+
+## 3.5 Desarrollo
+
+Debido a la dificultad que presenta el cálculo de forma manual del test de Fisher, realizaremos dicho cálculo mediante el test Z.
+
+```{r}
+# H0: p1 = p2
+# H1: p1 != p2
+
+# Calculamos proporciones muestrales
+
+x1 <- datos_test_fisher$Exitos[1] # Paises democráticos con GINI > 40
+n1 <- datos_test_fisher$N_Total[1] # Paises democráticos 
+
+x2 <- datos_test_fisher$Exitos[2] # Paises autocráticos con GINI > 40
+n2 <- datos_test_fisher$N_Total[2] # Paises autocráticos 
+
+# Proporciones muestrales:
+p1 <- x1 / n1
+p2 <- x2 / n2
+
+# 1. Calcular la Proporción Combinada (pc)
+# p_c <- (n1*p1 + n2*p2) / (n1+n2) 
+p_combinada <- (x1 + x2) / (n1 + n2)
+
+# 2. Calcular el Estadístico Z (Zobs)
+# Si usamos la fórmula (17) de la H0: p1 = p2
+# Z = (p1 - p2) / sqrt(pc * (1 - pc) * (1/n1 + 1/n2))
+Zobs <- (p1 - p2) / (sqrt(p_combinada * (1 - p_combinada) * (1/n1 + 1/n2)))
+
+# 3. Calcular el Valor Crítico (Zcrit)
+# al 95% (alfa = 0.05) ==>(1 - 0.05/2).
+ZCrit <- qnorm(0.025, lower.tail=FALSE) 
+
+# 4. Calcular el Valor p (pvalue)
+# Siendo un test bilateral debemos multiplicar por 2 la probabilidad
+p_value_manual <- 2 * pnorm(abs(Zobs), lower.tail=FALSE)
+
+
+```
+
+
+## 3.6 Resultados
+
+```{r}
+resultados_Z_manual <- c(Zobs, ZCrit, p_value_manual)
+names(resultados_Z_manual) <- c("Zobs", "Z Critico (alpha=0.05)", "p_value (Bilateral)")
+
+print(resultados_Z_manual)
+
+
+```
+
+## 3.7 Interpretación
+
+Dado que tenemos un valor Z Observado menor que el valor ZCritico (0.1376 < 1.9599) no podemos rechazar H0, esto se ve apoyado por 
+el pvalue, el cual es de 0.8904 siendo mayor que el valor alpha. Además si nos centramos en lo mostrado por el test de Fisher, podemos ver que el intervalo de confianza es [0.2499, 4.205], estando el valor observado contenido en el mismo.
+Por tanto podemos afirmar con un 95% de confianza que: no podemos afirmar que la proporción de países con alta desigualdad sea diferente entre los regímenes democráticos y autocráticos.
+
+
+# 4 Proporción de países que cumplen con el objetivo de no agotamiento de bosques
+
+
+**PR4: ¿La proporción de países que cumplen con el objetivo de no agotamiento neto de bosques
+es mayor que 50 %?**
+
+## 4.1 Análisis Descriptivo
+Realizaré un gráfico ordenado con los 20 países con el FOR más alto ordenados alfabeticamente por país.
+
+```{r}
+dt4 <- worldSustainabiltyDataSet %>%
+  rename(FOR = NY.ADJ.DFOR.GN.ZS) %>%
+  filter(Year == 2018) 
+
+dt4_Grf <- dt4 %>% group_by(Country) %>% summarise(Total_FOR = sum(FOR, na.rm = TRUE)) %>% ungroup()
+
+dt4_Grf <- dt4_Grf %>% arrange(desc(Total_FOR))
+
+
+ggplot(head(dt4_Grf,20), aes(x = Country, y = Total_FOR)) +
+  geom_col(fill = "steelblue") + # Usa geom_col para barras de valores pre-calculados
+  labs(
+    title = "Variación de FOR por País",
+    x = "País",
+    y = "Suma de FOR" # Cambia la etiqueta si usas la media
+  ) +
+  # Gira las etiquetas del eje X para mayor legibilidad si hay muchos países
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+length(dt4$Country)
+
+```
+
+## 4.2 Hipótesis
+
+Teniendo la pregunta PR4:¿La proporción de países que cumplen con el objetivo de no agotamiento neto de bosques
+es mayor que 50 %?  
+- n: Paises del mundo (173)
+- H0: p = 50 
+- H1: p > 50
+
+
+## 4.3 Test 
+
+El test será aplicado en una población suficientemente grande por lo que se puede asumir una distribución normal, con una varianza desconocida puesto que la variable country es categórica y no numérica, por tanto usaremos un test Z para un Test Unilateral derecho.
+
+## 4.4 Aplicación del Test 
+```{r}
+
+dt4_exitos <- dt4 %>% filter(!is.na(FOR)) %>%
+  mutate(
+    Cumple_Objetivo = ifelse(FOR <= 0, 1, 0) # 1 si se cumple (agotamiento es <= 0), 0 si no se cumple (agotamiento es > 0)
+  )
+  
+n <- length(dt4$FOR) 
+prop.test(
+  x= sum(dt4_exitos$Cumple_Objetivo),
+  n = n,
+  p = 0.5, #El objetivo es el 50%
+  alternative = "greater", # Test unilateral derecho
+  correct = TRUE # Maxima precisión
+)
+
+```
 
 
 
