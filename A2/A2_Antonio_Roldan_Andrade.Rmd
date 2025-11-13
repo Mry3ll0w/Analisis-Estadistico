@@ -77,7 +77,7 @@ Realizaremos un test unilateral derecho para verificar la hipótesis nula.
 
 Estamos en un caso en el que se tiene una muestra de datos grandes por lo que se puede 
 asumir que la distribución sigue una distribución normal, puesto que la población es 
-mayor que 30. Además tratamos de un contraste de hipótesis de dos poblaciones (High Income y el resto) independientes sin covarianza conocida.
+mayor que 30. Además tratamos de un contraste de hipótesis de dos poblaciones (High Income y el resto) independientes sin varianza conocida.
 
 ```{r}
 # Realizamos un filtrado extrayendo los datos que necesitamos
@@ -123,7 +123,7 @@ c(fobs, fcritL, fcritU, pvalue)
 ```
 
 Como podemos apreciar se rechaza la hipótesis nula, tanto por caer fuera del intervalo
-de confianza como por el valor de pvalue. Por tanto, las covarianzas son distintas.
+de confianza como por el valor de pvalue. Por tanto, las varianzas son distintas.
 
 ## 1.4 Aplicación del Test Estadístico
 
@@ -136,7 +136,7 @@ t.test(dt1_3$LE[dt1_3$IncomeGroup == 'Alto Ingreso'], dt1_3$LE[dt1_3$IncomeGroup
 
 ## 1.5 Desarrollo
 
-Dada la situación en la que nos encontramos (covarianza desconocida, poblaciones distintas y no dependientes) tendremos que realizar
+Dada la situación en la que nos encontramos (varianza desconocida, poblaciones distintas y no dependientes) tendremos que realizar
 los siguientes cálculos:
 
 ```{r}
@@ -279,10 +279,10 @@ podemos plantear las siguentes hipótesis:
 
 No podemos tratar a esta población como muestras dependientes, puesto que no estamos 
 relacionandos los mismos paises entre si, es decir, España 2008 con España 2018.
-Además no tenemos una covarianza puesto que no tratamos a la variable "Año" como algo
+Además no tenemos una varianza puesto que no tratamos a la variable "Año" como algo
 numérico si no de forma categórica.  
 Por tanto, tenemos un caso de contraste de hipótesis de dos poblaciones independientes 
-con una covarianza desconocidas, por lo que usaremos el t de Welch.
+con una varianza desconocidas, por lo que usaremos el t de Welch.
 
 ## 2.5 Aplicación del Test
 
@@ -318,22 +318,68 @@ c(fobs, fcritL, fcritU, pvalue)
 
 
 ```
-Como podemos ver en los valores mostrados, las covarianzas son iguales (h0), ya que 
+Como podemos ver en los valores mostrados, las varianzas son iguales (h0), ya que 
 se encuentra el valor observado dentro del intervalo de confianza, además el pvalue es mayor que alfa, reforzando así la hipótesis nula.
 
 ```{r}
-# Haremos un test de Welch para covarianzas iguales
+# Haremos un test de Welch para varianzas iguales
 t.test(dt2_2008$GINI, dt2_2018$GINI, alternative="greater", var.equal=TRUE)
 
 ```
 
 ## 2.5 Desarrollo 
 
+```{r}
+# 1. Calculamos la Desviación Estándar Combinada (sTotal)
+sTotal <- sqrt(
+  ((n1 - 1) * s1^2 + (n2-1)*s2^2 ) / (n1+n2-2)
+)
+
+# 2. Calculamos el Error Estándar Combinado (SE_pool)
+SE_pool <- sTotal * sqrt( (1/n1) + (1/n2) )
+
+# 3. Calculamos el Estadístico t (Valor Observado)
+tstobs <- (m1 - m2) / SE_pool
+
+# 4. Calculamos los Grados de Libertad
+df <- n1 + n2 - 2
+
+# 5. Calculamos el Valor Crítico (t_crit)
+# qt(0.95, df=df) da el t-valor para un test unilateral derecho (alfa=0.05)
+tcrit <- qt(0.95, df=df)
+
+# 6. Calculamos el Límite Inferior del IC Unilateral (95%)
+# IC_inf = (Diferencia de Medias) - (t_crit * SE_pool)
+IC_inferior <- (m1 - m2) - (tcrit * SE_pool)
+
+# 7. Calculamos el p-value (Unilateral Derecho)
+pvalue <- pt(tstobs, df=df, lower.tail = FALSE)
 
 
+```
 
+## 2.6 Resultados
 
+```{r}
 
+tabla_resultados_completa <- data.frame(
+  Estadístico = c("Media Grupo 1 (µ₁)", "Media Grupo 2 (µ₂)", "Diferencia de Medias", 
+                  "Estadístico t (Observado)", "Grados de Libertad (df)", 
+                  "Valor Crítico (tcrit)", "IC 95% Inferior", "Valor p"),
+  Valor = c(m1, m2, (m1-m2), tstobs, df, tcrit, IC_inferior, pvalue)
+)
+
+# 9. Mostrar la tabla formateada
+tabla_resultados_completa$Valor <- round(tabla_resultados_completa$Valor, 6)
+print(tabla_resultados_completa)
+
+```
+
+# 2.7 Interpretación
+
+Dado que nos encontramos en una prueba unilateral derecha, y el valor obtenido es de 1.31 y el intervalo de confianza es de [-0.49. inf) `
+podemos aceptar la hipótesis nula, viendose esta apoyada por los valores p obtenidos (siendo los mismos superiores a alpha, 0.955).
+Por tanto podemos afirmar que la desigualdad no se ha reducido en el mundo durante los años 2008 a 2018.
 
 
 
