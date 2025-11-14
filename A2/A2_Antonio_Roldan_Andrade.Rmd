@@ -12,6 +12,7 @@ knitr::opts_chunk$set(echo = TRUE)
 library(readxl)
 library(dplyr)
 library(ggplot2)
+library(knitr)  # Lo agrego para hacer más bonita la presentación de la última 
 ```
 
 # 1 Esperanza de Vida
@@ -640,6 +641,104 @@ prop.test(
 )
 
 ```
+
+## 4.5 Desarrollo 
+
+```{r}
+
+x <- sum(dt4_exitos$Cumple_Objetivo)
+pobs <- x / n 
+p0 <- 0.5
+# 1. Calcular el Error Estándar (SE) bajo H0
+SE_H0 <- sqrt(p0 * (1 - p0) / n)
+
+# 2. Calcular el Estadístico Z 
+numerador_z <- (pobs - p0) - (0.5 / n)
+Z_calc <- numerador_z / SE_H0
+pL <- pobs - Z_calc*SE_H0
+pU <- pobs + Z_calc*SE_H0
+
+# 3. Calcular el Valor p para el Test UNILATERAL DERECHO
+pvalue_final <- pnorm(Z_calc, lower.tail = FALSE)
+
+# --- Output Final (Z_corr y PValue) ---
+resultados_finales <- c(
+  round(Z_calc, 6),
+  round(pvalue_final, 6)
+)
+names(resultados_finales) <- c("Zobs (Corregido)", "PValue (Corregido)")
+
+print(resultados_finales)
+
+
+```
+
+## 4.6 Resultados
+
+```{r}
+
+resultados_Z_manual <- c( round(Z_calc, 6), pL, pU, round(pvalue_final,4))
+names(resultados_Z_manual) <- c("Zobs", "Limite Inferior", "Limite Superior", "PValue")
+
+print(resultados_Z_manual)
+
+```
+
+## 4.7 Interpretación 
+
+Basandonos en los resultados obtenidos podemos aceptar la hipótesis nula con confianza del 95% puesto que el valor del 50% 
+cae dentro del intervalo de confianza [0.503, 0.595], además esto se ve confirmado por el valor del pValue que es superior al 
+valor alfa 0.05 (0.05 < 0.11), por tanto: La proporción de países que cumplen con el objetivo de 
+no agotamiento neto de bosques es igual al 50 %.
+
+
+# 5 Conclusiones y comunicación del resultados
+
+```{r, echo=FALSE}
+# --- Creación de la Tabla de Resumen ---
+tabla_final_resumen <- tribble(
+  ~`Pregunta de Investigación`, ~`Tipo de Test`, ~`Hipótesis Nula`,~`Hipótesis Alternativa`, ~`Valor p Obtenido`, ~`Decisión e Interpretación (alpha=0.05)`,
+  # PR1: Esperanza de Vida
+  "1. Esperanza de Vida (LE)",
+  "Test t de Welch (Dos Muestras, sigma^2 distintas)",
+  "H0: mu1 = mu2",
+  "H1: mu1 > mu2 (mu1 = Alto Ingreso)",
+  "~ < 2.2e-16",
+  "**Rechazar H0**. El p-value es extremadamente pequeño. Se afirma que la esperanza de vida en países de alto ingreso es significativamente mayor que en el resto.",
+  
+  # PR2: Desigualdad a lo largo del tiempo
+  "2. Desigualdad (GINI) 2008 vs. 2018",
+  "Test t para dos muestras (Varianzas iguales)",
+  "H0: mu2008 = mu2018 ",
+  "H1: mu2008 > mu2018 (Reducción de desigualdad)",
+  "~ 0.095584",
+  "**No Rechazar H0**. El p-value es mayor que 0.05. No hay evidencia para afirmar que la desigualdad global se haya reducido significativamente.",
+  
+  # PR3: Desigualdad según el tipo de régimen
+  "3. Desigualdad por Régimen",
+  "Test Exacto de Fisher (o Test Z para dos proporciones)",
+  "H0: pDem = pAut",
+  "H1: pDem != pAut (Proporción GINI > 40 es diferente)",
+  "~ 1 (Fisher); 0.8905 (Z Manual)",
+  "**No Rechazar H0**. El p-value es muy alto. No se puede afirmar que la proporción de alta desigualdad sea diferente entre regímenes democráticos y autocráticos.",
+  
+  # PR4: Cumplimiento objetivo de bosques
+  "4. Bosques (FOR) vs. 50%",
+  "Test Z para una proporción (con corrección de continuidad)",
+  "H0: p = 0.50",
+  "H1: p > 0.50 (Proporción FOR <= 0 es mayor que 50%)",
+  "~ 0.1119",
+  "**No Rechazar H0**. El p-value es mayor que 0.05. No hay evidencia para afirmar que la proporción de países que cumplen el objetivo sea mayor al 50%."
+)
+
+# Imprimir la tabla en formato Markdown usando knitr::kable
+kable(tabla_final_resumen, format = "pipe", align = c('l', 'l', 'l', 'c', 'l'))
+
+```
+
+
+
+
 
 
 
