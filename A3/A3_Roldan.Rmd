@@ -1,0 +1,91 @@
+---
+title: "A3"
+author: "Antonio Roldán Andrade"
+date: "2025-12-15"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(dplyr)
+```
+
+## 1 Regresión Lineal 
+
+### 1.1 Carga y preparación de los datos
+
+```{r, echo=TRUE}
+
+csv_location <- "salarios_INE_2022_sample.csv"
+salariosDataSet <- read.csv(csv_location, sep = ",")
+
+head(salariosDataSet,5)
+salariosDataSet <- salariosDataSet %>%
+ mutate(
+  # 1. CONVERSIÓN Y ETIQUETADO DE VARIABLES CATEGÓRICAS SIMPLES
+
+ 
+  SEXO = factor(SEXO,
+         levels = c(1, 6), # 1=Hombre, 6=Mujer
+         labels = c("Hombre", "Mujer")),
+
+  # ESTU (Nivel de Estudios): Sobrescribe la columna 'ESTU'
+  ESTU = factor(ESTU,
+         levels = c(1, 2, 3, 4, 5, 6),
+         labels = c("1. Sin Estudios/Primaria Incompleta",
+              "2. Primaria Completa",
+              "3. Secundaria 1ª Etapa (E.S.O.)",
+              "4. Secundaria 2ª Etapa (Bachillerato)",
+              "5. Formación Profesional",
+              "6. Estudios Superiores")),
+
+  # ANOS2 (Grupos de Edad): Sobrescribe la columna 'ANOS2'
+  ANOS2 = factor(ANOS2,
+         levels = c(1, 2, 3, 4, 5, 6),
+         labels = c("1. Menos de 19",
+               "2. 20 a 29",
+               "3. 30 a 39",
+               "4. 40 a 49",
+               "5. 50 a 59",
+               "6. 60 y más"
+              )),
+
+
+  # 2. RECODIFICACIÓN ESPECÍFICA DE CNACE (Actividad Económica)
+ 
+  CNACE = case_when(
+   # Nivel 1: B, C, D, E, F
+   CNACE %in% c("B", "C", "D", "E", "F") ~ "1. Industria y Construcción",
+   # Nivel 2: O, P, Q
+   CNACE %in% c("O", "P", "Q") ~ "2. Servicios Públicos Clave",
+   # Nivel 3: El resto
+   TRUE ~ "3. Otros Servicios y Actividades"
+  ),
+
+  # Creamos la nueva variable
+  CNACE_grp = factor(CNACE,
+         levels = c("1. Industria y Construcción",
+               "2. Servicios Públicos Clave",
+               "3. Otros Servicios y Actividades")),
+
+
+  # 3. RECODIFICACIÓN ESPECÍFICA DE CNO1 
+ 
+  CNO1 = case_when(
+   # Nivel 1: A0–C0 (Directores y Técnicos/Profesionales)
+   substr(CNO1, 1, 1) %in% c("A", "B", "C") ~ "1. Dirección y Alta Cualificación",
+   # Nivel 2: D0–J0 (Técnicos de Apoyo, Empleados, Servicios, Agricultores)
+   substr(CNO1, 1, 1) %in% c("D", "E", "F", "G", "H", "I", "J") ~ "2. Cualificación Media",
+   # Nivel 3: El resto (K0, L0, M0, N0, O0, P0, Q0)
+   TRUE ~ "3. Baja Cualificación y Elementales"
+  ),
+
+  # Convertir CNO1 a factor y ordenar los niveles
+  CNO1_grp = factor(CNO1,
+         levels = c("1. Dirección y Alta Cualificación",
+              "2. Cualificación Media",
+              "3. Baja Cualificación y Elementales"))
+ )
+
+
+
+``` 

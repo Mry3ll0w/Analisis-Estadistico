@@ -694,7 +694,7 @@ no agotamiento neto de bosques es igual al 50 %.
 
 # 5 Conclusiones y comunicación del resultados
 
-```{r, echo=FALSE}
+```{r}
 # --- Creación de la Tabla de Resumen ---
 tabla_final_resumen <- tribble(
   ~`Pregunta de Investigación`, ~`Tipo de Test`, ~`Hipótesis Nula`,~`Hipótesis Alternativa`, ~`Valor p Obtenido`, ~`Decisión e Interpretación (alpha=0.05)`,
