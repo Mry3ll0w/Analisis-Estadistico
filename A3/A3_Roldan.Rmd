@@ -7,6 +7,7 @@ output: html_document
 
 ```{r setup, include=FALSE}
 library(dplyr)
+library(corrplot)
 ```
 
 ## 1 Regresión Lineal 
@@ -89,3 +90,97 @@ salariosDataSet <- salariosDataSet %>%
 
 
 ``` 
+
+
+
+## 1.2 Estudio de correlación lineal
+
+```{r, echo=TRUE}
+# Extraemos todas las variables cuantitativas de la tabla
+datos_cuantitativos <- salariosDataSet %>%
+  select(where(is.numeric))
+
+# Una vez tenemos los datos procedemos a realizar la matriz de correlacion
+matriz_correlacion <- cor(datos_cuantitativos, use = "pairwise.complete.obs")
+# 3. Visualizar la matriz
+corrplot(matriz_correlacion, 
+         method = "circle", # Puedes usar "square" o "number"
+         type = "upper",    # Muestra solo la mitad superior
+         tl.cex = 0.7,      # Tamaño de la fuente de las etiquetas
+         tl.col = "black",  # Color de las etiquetas
+         tl.srt = 45,       # Rotación de las etiquetas
+         addCoef.col = "black", # Añade el número del coeficiente (opcional)
+         number.cex = 0.6)      # Tamaño de los números (si los añades)
+```
+Como podemos apreciar la matriz es enorme, por lo que realizaremos un filtrado por elementos con una correlación alta (>= 0.7), con esto tendremos una mayor facilidad para obtener un resultado estudiable
+
+```{r, echo=TRUE}
+
+correlaciones_df <- as.data.frame(matriz_correlacion) %>%
+  tibble::rownames_to_column("Var1") %>%
+  # Nos vamos moviendo para tener una fila por cada par de correlación
+  tidyr::pivot_longer(cols = -Var1, names_to = "Var2", values_to = "Correlacion") %>%
+  
+  # Aseguramos que no comparemos Var1 vs Var2 y Var2 vs Var1, y que no sea la diagonal (Var1 == Var2)
+  filter(Var1 < Var2) %>%
+  
+  # Buscar correlaciones fuertes (|r| > 0.7)
+  filter(abs(Correlacion) > 0.7) %>%
+  
+  # Ordenar por el valor absoluto de la correlación (de más fuerte a más débil)
+  arrange(desc(abs(Correlacion)))
+
+# Imprimir las correlaciones más fuertes
+print("Pares de variables con correlación |r| > 0.7:")
+print(correlaciones_df)
+
+```
+
+Podemos apreciar la existencia de múltiples variables con una fuerte correlación pudiendo destacar:  
+
+- BASE <-> COTIZA: Como es lógico existe una fuerte correlación entre las contribuciones a la seguridad social y la base de cotización a la seguridad social, existe una correlación positiva entre ambas casi completa (0.953).
+
+- JAP <-> JSP1: Cuanto mayor es la jornada laboral anual pactada mayor será la jornada semanal en la mayoría de los casos.
+
+- IRPF <-> RETRINOIN: Consecuentemente, cuanto mayor es el salario bruto anual mayor será la cantidad de IRPF que tendrá que pagar el trabajador.
+
+
+### 1.4. Generación de los conjuntos de entrenamiento y de test
+
+
+```{r, echo=TRUE}
+# Fijar la semilla para reproducibilidad
+set.seed(42)
+
+#`1. Crear el vector de índices para la muestra de entrenamiento (80%) ---
+
+tamano_train <- floor(0.80 * nrow(salariosDataSet))
+
+# seleccionamos los índices de las filas que irán a 'train'
+indices_train <- sample(seq_len(nrow(salariosDataSet)), size = tamano_train)
+
+# --- 2. Separar los conjuntos de datos ---
+
+train <- salariosDataSet[indices_train, ]
+
+test <- salariosDataSet[-indices_train, ]
+
+print(paste("Tamaño total:", nrow(salariosDataSet)))
+print(paste("Tamaño train (80%):", nrow(train)))
+print(paste("Tamaño test (20%):", nrow(test)))
+
+```
+
+### 1.5. Estimación de modelos de regresión lineales simples con variable cualitativa
+
+
+
+
+
+
+
+
+
+
+
+
