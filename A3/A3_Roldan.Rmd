@@ -180,25 +180,24 @@ print(paste("Tamaño test (20%):", nrow(test)))
 modelo_sexo <- lm(RETRINOIN ~ SEXO, data = train)
 
 # Mostrar el resumen del modelo 1
-print("--- Resumen del Modelo 1: RETRINOIN ~ SEXO ---")
 summary(modelo_sexo)
 
 ```
-Como podemos apreciar en el resultado, tenemos:  
-1) El salario medio estimado del grupo de referencia (hombre, b0) es de $31053.9$
-2) La diferencia salarial media estimada de las mujeres respecto a los hombres es de $-6472.0$
+__Como podemos apreciar en el resultado anterior, tenemos:__  
+1) El salario medio estimado del grupo de referencia (hombre, b0) es de $31053.9$  
+2) La diferencia salarial media estimada de las mujeres respecto a los hombres es de $-6472.0$  
 3) El salario medio del grupo menos favorecido (mujeres) es:  
-SalarioMujer = salario_medio_hombre + (coeficienteMujer) =31053.9 + (-6472.0) = 24581.9
+$$\text{Salario}_{\text{Resto del Mundo}} = \text{Intercepto} + \text{Coeficiente}_{\text{TIPOPAIS2}}$$
 
-Con respecto a la si estas estadísticas son significativas tenemos:  
+__Con respecto a la si estas estadísticas son significativas tenemos:__  
 
 Puesto que el p-valor del coeficiente es <2e-16, esto implica que dado que es un valor extremadamente pequeño y es mucho menor 
 que el umbral de significación (alpha = 0.05) por tanto podemos rechazar la hipotesis nula (Ho: coeficiente es 0).
 
 Por tanto podemos decir que la diferencia salarial media estimada de $-6472.0$ es estadísticamente significativa. 
 
-Si nos centramos en la interpretación de R^2 tenemos:
-El valor obtenido R-Squared es del 1.731 %, por lo que podemos decir la variable SEXO influye únicamente en el 1.73% de la variabilidad de la varianza pudiendo asumir que aún siendo la diferencia salarial es estadísticamente significativa, el modelo es débil desde el punto de vista predictivo. La mayor parte de la variación salarial ($\approx 98.27\%$) se debe a otros factores no incluidos en este modelo simple.
+__Si nos centramos en la interpretación de $R^2$ tenemos:__
+El valor obtenido R-Squared es del 1.731 %, por lo que podemos decir la variable SEXO influye únicamente en el $1.73%$ de la variabilidad de la varianza pudiendo asumir que aún siendo la diferencia salarial es estadísticamente significativa, el modelo es débil desde el punto de vista predictivo. La mayor parte de la variación salarial ($\approx 98.27\%$) se debe a otros factores no incluidos en este modelo simple.
 
 
 
@@ -207,18 +206,76 @@ El valor obtenido R-Squared es del 1.731 %, por lo que podemos decir la variable
 modelo_pais <- lm(RETRINOIN ~ TIPOPAIS, data = train)
 
 # Mostrar el resumen del modelo 1
-print("--- Resumen del Modelo 2: RETRINOIN ~ PAIS ---")
 summary(modelo_pais)
 
 ```
 
+__Como podemos apreciar en el resultado del segundo caso, tenemos:__  
+1) El salario medio estimado del grupo de referencia (TIPOPAIS 1: España) es de $34080$.  
+2) La diferencia salarial media estimada de los trabajadores con nacionalidad Resto del Mundo (TIPOPAIS 2) respecto a los de España es de $-5547$.  
+3) El salario medio del grupo menos favorecido (Resto del Mundo) es:
+
+$$\text{Salario}_{\text{Resto del Mundo}} = \text{Salario}_{\text{Medio España}} + \text{Coeficiente}_{\text{TPAIS}} = 34080 + (-5547) = 28533$$
+__Con respecto a si estas estadísticas son significativas, tenemos:__  
+
+Puesto que el $p$-valor del coeficiente es $2.2\text{e-}07$, esto implica que dado que es un valor extremadamente pequeño y es mucho menor que el umbral de significación ($\alpha = 0.05$), por lo tanto podemos rechazar la hipótesis nula ($H_0$: el coeficiente es 0).  
+Por lo tanto, podemos decir que la diferencia salarial media estimada de $-5547$ es estadísticamente significativa.  
+
+__Si nos centramos en la interpretación de $R^2$ tenemos:__  
+El valor obtenido $R^2$ Ajustado es del $0.3227\%$ ($0.003227$), por lo que podemos decir la variable $TIPOPAIS$ influye únicamente en el $0.3227\%$ de la variabilidad de la varianza de la retribución, pudiendo asumir que aun siendo la diferencia salarial estadísticamente significativa, el modelo es extremadamente débil desde el punto de vista predictivo.  
+La mayor parte de la variación salarial ($\approx 99.68\%$) se debe a otros factores no incluidos en este modelo simple.
+
+### 1.6 Estimación del modelo de regresión lineal múltiple con predictores cuantitativos
+
+Haremos ahora las regresiones lineales para la variables RETROIN, ANOANTI y JAP:
+
 ```{r, echo=TRUE}
-print(mean(salariosDataSet$JAP[salariosDataSet$SEXO == "Mujer"]))
-print(mean(salariosDataSet$JAP[salariosDataSet$SEXO == "Hombre"]))
 
+modelo_antiguedad_jornada <- lm(RETRINOIN ~ ANOANTI + JAP, data = train)
 
+summary(modelo_antiguedad_jornada)
 
 ```
+
+Del resultado mostrado en la regresión lineal podemos inferir:  
+
+1) La variable independiente representa la retribución de un trabajador con 0 experiencia y 0 horas de jornada laboral anual, esto nos ayuda para los cálculos posteriores.  
+
+2) La variable ANOANTI nos indica que por cada año que pasa la retribución aumenta $712.9$ euros.  
+
+3) Por cada hora adicional pactada anualmente la retribución aumenta $16,36$ euros.  
+
+__Interpretación de $R^2$ Ajustado__  
+
+1) El $R^2$ Ajustado del $14.9\%$ es sustancialmente mayor que los modelos simples anteriores (M1 con $\approx 1.73\%$ y M2 con $\approx 0.32\%$).  
+
+2) Confirmando que las variables cuantitativas de "cantidad de trabajo y experiencia" son, efectivamente, mejores predictores de la retribución que las variables categóricas de sexo o nacionalidad.  
+
+3) El modelo sigue siendo moderadamente débil, ya que el $85.1\%$ restante de la variabilidad en el salario se explica por otros factores.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

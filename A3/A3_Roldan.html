@@ -575,9 +575,7 @@ variable cualitativa</h3>
 modelo_sexo &lt;- lm(RETRINOIN ~ SEXO, data = train)
 
 # Mostrar el resumen del modelo 1
-print(&quot;--- Resumen del Modelo 1: RETRINOIN ~ SEXO ---&quot;)</code></pre>
-<pre><code>## [1] &quot;--- Resumen del Modelo 1: RETRINOIN ~ SEXO ---&quot;</code></pre>
-<pre class="r"><code>summary(modelo_sexo)</code></pre>
+summary(modelo_sexo)</code></pre>
 <pre><code>## 
 ## Call:
 ## lm(formula = RETRINOIN ~ SEXO, data = train)
@@ -596,15 +594,17 @@ print(&quot;--- Resumen del Modelo 1: RETRINOIN ~ SEXO ---&quot;)</code></pre>
 ## Residual standard error: 24170 on 7998 degrees of freedom
 ## Multiple R-squared:  0.01743,    Adjusted R-squared:  0.01731 
 ## F-statistic: 141.9 on 1 and 7998 DF,  p-value: &lt; 2.2e-16</code></pre>
-<p>Como podemos apreciar en el resultado, tenemos:<br />
+<p><strong>Como podemos apreciar en el resultado anterior,
+tenemos:</strong><br />
 1) El salario medio estimado del grupo de referencia (hombre, b0) es de
-<span class="math inline">\(31053.9\)</span> 2) La diferencia salarial
-media estimada de las mujeres respecto a los hombres es de <span class="math inline">\(-6472.0\)</span> 3) El salario medio del grupo
-menos favorecido (mujeres) es:<br />
-SalarioMujer = salario_medio_hombre + (coeficienteMujer) =31053.9 +
-(-6472.0) = 24581.9</p>
-<p>Con respecto a la si estas estadísticas son significativas
-tenemos:</p>
+<span class="math inline">\(31053.9\)</span><br />
+2) La diferencia salarial media estimada de las mujeres respecto a los
+hombres es de <span class="math inline">\(-6472.0\)</span><br />
+3) El salario medio del grupo menos favorecido (mujeres) es:<br />
+<span class="math display">\[\text{Salario}_{\text{Resto del Mundo}} =
+\text{Intercepto} + \text{Coeficiente}_{\text{TIPOPAIS2}}\]</span></p>
+<p><strong>Con respecto a la si estas estadísticas son significativas
+tenemos:</strong></p>
 <p>Puesto que el p-valor del coeficiente es &lt;2e-16, esto implica que
 dado que es un valor extremadamente pequeño y es mucho menor que el
 umbral de significación (alpha = 0.05) por tanto podemos rechazar la
@@ -612,19 +612,18 @@ hipotesis nula (Ho: coeficiente es 0).</p>
 <p>Por tanto podemos decir que la diferencia salarial media estimada de
 <span class="math inline">\(-6472.0\)</span> es estadísticamente
 significativa.</p>
-<p>Si nos centramos en la interpretación de R^2 tenemos: El valor
-obtenido R-Squared es del 1.731 %, por lo que podemos decir la variable
-SEXO influye únicamente en el 1.73% de la variabilidad de la varianza
-pudiendo asumir que aún siendo la diferencia salarial es
-estadísticamente significativa, el modelo es débil desde el punto de
-vista predictivo. La mayor parte de la variación salarial (<span class="math inline">\(\approx 98.27\%\)</span>) se debe a otros factores
-no incluidos en este modelo simple.</p>
+<p><strong>Si nos centramos en la interpretación de <span class="math inline">\(R^2\)</span> tenemos:</strong> El valor obtenido
+R-Squared es del 1.731 %, por lo que podemos decir la variable SEXO
+influye únicamente en el <span class="math inline">\(1.73%\)</span> de
+la variabilidad de la varianza pudiendo asumir que aún siendo la
+diferencia salarial es estadísticamente significativa, el modelo es
+débil desde el punto de vista predictivo. La mayor parte de la variación
+salarial (<span class="math inline">\(\approx 98.27\%\)</span>) se debe
+a otros factores no incluidos en este modelo simple.</p>
 <pre class="r"><code>modelo_pais &lt;- lm(RETRINOIN ~ TIPOPAIS, data = train)
 
 # Mostrar el resumen del modelo 1
-print(&quot;--- Resumen del Modelo 2: RETRINOIN ~ PAIS ---&quot;)</code></pre>
-<pre><code>## [1] &quot;--- Resumen del Modelo 2: RETRINOIN ~ PAIS ---&quot;</code></pre>
-<pre class="r"><code>summary(modelo_pais)</code></pre>
+summary(modelo_pais)</code></pre>
 <pre><code>## 
 ## Call:
 ## lm(formula = RETRINOIN ~ TIPOPAIS, data = train)
@@ -643,10 +642,90 @@ print(&quot;--- Resumen del Modelo 2: RETRINOIN ~ PAIS ---&quot;)</code></pre>
 ## Residual standard error: 24350 on 7998 degrees of freedom
 ## Multiple R-squared:  0.003352,   Adjusted R-squared:  0.003227 
 ## F-statistic:  26.9 on 1 and 7998 DF,  p-value: 2.195e-07</code></pre>
-<pre class="r"><code>print(mean(salariosDataSet$JAP[salariosDataSet$SEXO == &quot;Mujer&quot;]))</code></pre>
-<pre><code>## [1] 1548.246</code></pre>
-<pre class="r"><code>print(mean(salariosDataSet$JAP[salariosDataSet$SEXO == &quot;Hombre&quot;]))</code></pre>
-<pre><code>## [1] 1659.657</code></pre>
+<p><strong>Como podemos apreciar en el resultado del segundo caso,
+tenemos:</strong><br />
+1) El salario medio estimado del grupo de referencia (TIPOPAIS 1:
+España) es de <span class="math inline">\(34080\)</span>.<br />
+2) La diferencia salarial media estimada de los trabajadores con
+nacionalidad Resto del Mundo (TIPOPAIS 2) respecto a los de España es de
+<span class="math inline">\(-5547\)</span>.<br />
+3) El salario medio del grupo menos favorecido (Resto del Mundo) es:</p>
+<p><span class="math display">\[\text{Salario}_{\text{Resto del Mundo}}
+= \text{Salario}_{\text{Medio España}} +
+\text{Coeficiente}_{\text{TPAIS}} = 34080 + (-5547) = 28533\]</span>
+<strong>Con respecto a si estas estadísticas son significativas,
+tenemos:</strong></p>
+<p>Puesto que el <span class="math inline">\(p\)</span>-valor del
+coeficiente es <span class="math inline">\(2.2\text{e-}07\)</span>, esto
+implica que dado que es un valor extremadamente pequeño y es mucho menor
+que el umbral de significación (<span class="math inline">\(\alpha =
+0.05\)</span>), por lo tanto podemos rechazar la hipótesis nula (<span class="math inline">\(H_0\)</span>: el coeficiente es 0).<br />
+Por lo tanto, podemos decir que la diferencia salarial media estimada de
+<span class="math inline">\(-5547\)</span> es estadísticamente
+significativa.</p>
+<p><strong>Si nos centramos en la interpretación de <span class="math inline">\(R^2\)</span> tenemos:</strong><br />
+El valor obtenido <span class="math inline">\(R^2\)</span> Ajustado es
+del <span class="math inline">\(0.3227\%\)</span> (<span class="math inline">\(0.003227\)</span>), por lo que podemos decir la
+variable <span class="math inline">\(TIPOPAIS\)</span> influye
+únicamente en el <span class="math inline">\(0.3227\%\)</span> de la
+variabilidad de la varianza de la retribución, pudiendo asumir que aun
+siendo la diferencia salarial estadísticamente significativa, el modelo
+es extremadamente débil desde el punto de vista predictivo.<br />
+La mayor parte de la variación salarial (<span class="math inline">\(\approx 99.68\%\)</span>) se debe a otros factores
+no incluidos en este modelo simple.</p>
+</div>
+<div id="estimación-del-modelo-de-regresión-lineal-múltiple-con-predictores-cuantitativos" class="section level3">
+<h3>1.6 Estimación del modelo de regresión lineal múltiple con
+predictores cuantitativos</h3>
+<p>Haremos ahora las regresiones lineales para la variables RETROIN,
+ANOANTI y JAP:</p>
+<pre class="r"><code>modelo_antiguedad_jornada &lt;- lm(RETRINOIN ~ ANOANTI + JAP, data = train)
+
+summary(modelo_antiguedad_jornada)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = RETRINOIN ~ ANOANTI + JAP, data = train)
+## 
+## Residuals:
+##    Min     1Q Median     3Q    Max 
+## -49203 -11024  -4369   4762 503785 
+## 
+## Coefficients:
+##               Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept) -5862.9176  1232.9114  -4.755 2.02e-06 ***
+## ANOANTI       712.8970    24.8321  28.709  &lt; 2e-16 ***
+## JAP            16.3664     0.7437  22.006  &lt; 2e-16 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 22500 on 7997 degrees of freedom
+## Multiple R-squared:  0.1492, Adjusted R-squared:  0.149 
+## F-statistic: 701.1 on 2 and 7997 DF,  p-value: &lt; 2.2e-16</code></pre>
+<p>Del resultado mostrado en la regresión lineal podemos inferir:</p>
+<ol style="list-style-type: decimal">
+<li><p>La variable independiente representa la retribución de un
+trabajador con 0 experiencia y 0 horas de jornada laboral anual, esto
+nos ayuda para los cálculos posteriores.</p></li>
+<li><p>La variable ANOANTI nos indica que por cada año que pasa la
+retribución aumenta <span class="math inline">\(712.9\)</span>
+euros.</p></li>
+<li><p>Por cada hora adicional pactada anualmente la retribución aumenta
+<span class="math inline">\(16,36\)</span> euros.</p></li>
+</ol>
+<p><strong>Interpretación de <span class="math inline">\(R^2\)</span>
+Ajustado</strong></p>
+<ol style="list-style-type: decimal">
+<li><p>El <span class="math inline">\(R^2\)</span> Ajustado del <span class="math inline">\(14.9\%\)</span> es sustancialmente mayor que los
+modelos simples anteriores (M1 con <span class="math inline">\(\approx
+1.73\%\)</span> y M2 con <span class="math inline">\(\approx
+0.32\%\)</span>).</p></li>
+<li><p>Confirmando que las variables cuantitativas de “cantidad de
+trabajo y experiencia” son, efectivamente, mejores predictores de la
+retribución que las variables categóricas de sexo o
+nacionalidad.</p></li>
+<li><p>El modelo sigue siendo moderadamente débil, ya que el <span class="math inline">\(85.1\%\)</span> restante de la variabilidad en el
+salario se explica por otros factores.</p></li>
+</ol>
 </div>
 </div>
 
