@@ -173,8 +173,52 @@ print(paste("Tamaño test (20%):", nrow(test)))
 
 ### 1.5. Estimación de modelos de regresión lineales simples con variable cualitativa
 
+```{r, echo=TRUE}
+
+# M1: RETRINOIN en función de SEXO
+# Usamos Lm ya que estamos en un estudio de regresión lineal simple
+modelo_sexo <- lm(RETRINOIN ~ SEXO, data = train)
+
+# Mostrar el resumen del modelo 1
+print("--- Resumen del Modelo 1: RETRINOIN ~ SEXO ---")
+summary(modelo_sexo)
+
+```
+Como podemos apreciar en el resultado, tenemos:  
+1) El salario medio estimado del grupo de referencia (hombre, b0) es de $31053.9$
+2) La diferencia salarial media estimada de las mujeres respecto a los hombres es de $-6472.0$
+3) El salario medio del grupo menos favorecido (mujeres) es:  
+SalarioMujer = salario_medio_hombre + (coeficienteMujer) =31053.9 + (-6472.0) = 24581.9
+
+Con respecto a la si estas estadísticas son significativas tenemos:  
+
+Puesto que el p-valor del coeficiente es <2e-16, esto implica que dado que es un valor extremadamente pequeño y es mucho menor 
+que el umbral de significación (alpha = 0.05) por tanto podemos rechazar la hipotesis nula (Ho: coeficiente es 0).
+
+Por tanto podemos decir que la diferencia salarial media estimada de $-6472.0$ es estadísticamente significativa. 
+
+Si nos centramos en la interpretación de R^2 tenemos:
+El valor obtenido R-Squared es del 1.731 %, por lo que podemos decir la variable SEXO influye únicamente en el 1.73% de la variabilidad de la varianza pudiendo asumir que aún siendo la diferencia salarial es estadísticamente significativa, el modelo es débil desde el punto de vista predictivo. La mayor parte de la variación salarial ($\approx 98.27\%$) se debe a otros factores no incluidos en este modelo simple.
 
 
+
+
+```{r, echo=TRUE}
+modelo_pais <- lm(RETRINOIN ~ TIPOPAIS, data = train)
+
+# Mostrar el resumen del modelo 1
+print("--- Resumen del Modelo 2: RETRINOIN ~ PAIS ---")
+summary(modelo_pais)
+
+```
+
+```{r, echo=TRUE}
+print(mean(salariosDataSet$JAP[salariosDataSet$SEXO == "Mujer"]))
+print(mean(salariosDataSet$JAP[salariosDataSet$SEXO == "Hombre"]))
+
+
+
+```
 
 
 
