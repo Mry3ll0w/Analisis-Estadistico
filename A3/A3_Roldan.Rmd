@@ -8,6 +8,7 @@ output: html_document
 ```{r setup, include=FALSE}
 library(dplyr)
 library(corrplot)
+library(car) # Funcion VIF
 ```
 
 ## 1 Regresión Lineal 
@@ -23,8 +24,11 @@ head(salariosDataSet,5)
 salariosDataSet <- salariosDataSet %>%
  mutate(
   # 1. CONVERSIÓN Y ETIQUETADO DE VARIABLES CATEGÓRICAS SIMPLES
-
- 
+  
+  TIPOPAIS = factor(TIPOPAIS,
+                             levels = c(1, 2), 
+                             labels = c("España", "Otra")),
+   
   SEXO = factor(SEXO,
          levels = c(1, 6), # 1=Hombre, 6=Mujer
          labels = c("Hombre", "Mujer")),
@@ -251,15 +255,84 @@ __Interpretación de $R^2$ Ajustado__
 
 2) Confirmando que las variables cuantitativas de "cantidad de trabajo y experiencia" son, efectivamente, mejores predictores de la retribución que las variables categóricas de sexo o nacionalidad.  
 
-3) El modelo sigue siendo moderadamente débil, ya que el $85.1\%$ restante de la variabilidad en el salario se explica por otros factores.
+3) El modelo sigue siendo moderadamente débil, ya que el $85.1\%$ restante de la variabilidad en el salario se explica por otros factores.  
+
+
+## 1.7 Estimación del modelo de regresión lineal múltiple con predictores cuantitativos y cualitativos
+
+Para dar respuesta a este ejercicio ajustamos el modelo de la siguiente manera:  
+$$\text{RETRINOIN} \sim \text{ANOANTI} + \text{JAP} + \text{SEXO} + \text{TIPOPAIS} + \text{ESTU} + \text{ANOS2} + \text{CNO1_grp}$$  
 
 
 
+```{r, echo=TRUE}
+                                
+
+
+modelo_completo <- lm(RETRINOIN ~ ANOANTI + JAP + SEXO + TIPOPAIS + ESTU + 
+                                  ANOS2 + CNO1_grp, 
+                                  data = train)
+
+# Mostrar el resumen del modelo y calcular VIF
+print("--- Resumen del Modelo Completo (M4_final) ---")
+summary(modelo_completo)
+
+vif(modelo_completo)
+
+
+```
+
+Basandonos en los datos aportados podemos inferir:  
+
+1. Todas las variables usadas deben ser mantenidas en el modelo puesto que todas tienen un valor que oscila desde  $\approx 1.043$ hasta
+ $\approx 1.23$, en consecuencia ya que el VIF se encuentra en un nivel muy bajo ($1 < \text{VIF} < 5$) mantenemos todas las variables.
+
+
+2. Ateniendonos a $R^2$ extraemos que el su valor es del $35.21\%$ por lo que hemos aumentado significativamente el coeficiente de determinación, mejorando el modelo, siendo el del modelo anterior $14.9\%$. Esto nos aporta otro apoyo en la decisión de mantener los factores cualitativos dentro del modelo.
+
+3. $P-Valor$
+
+- SEXOMujer pasa de ser nada significativa a tener una gran significancia ($< 2e-16$)
+
+- ESTU: Los niveles de estudio solo poseen significancia a partir de aquellos con Formación Profesional, siendo los 3 primeros niveles (ESTU2-4) nada significativos y viendo como pasan a influir a partir del grupo 5 en adelante.
+
+- ANOS2: Podemos apreciar al incluir el resto de variables cualitativas como los años de antiguedad no son significativos en ningúno de los niveles.
+
+- CNO1_grp: Podemos ver como si es altamente significativo poseer un nivel de estudios de cualquier tipo, $< 2e-16$
+
+
+4. La unica variable candidata a ser eliminada (a pesar de su VIF) es ANOS2, puesto que ninguno de sus niveles aporta significancia al modelo.  
+
+De tal manera el modelo final será:  
+$$\text{RETRINOIN} \sim \text{ANOANTI} + \text{JAP} + \text{SEXO} + \text{TIPOPAIS} + \text{ESTU} + \text{CNO1_grp}$$
+```{r, echo=TRUE}
+
+modelo_completov2 <- lm(RETRINOIN ~ ANOANTI + JAP + SEXO + TIPOPAIS + ESTU + 
+                                   CNO1_grp, 
+                                  data = train)
+
+# Mostrar el resumen del modelo 
+print("--- Resumen del Modelo Completo (M4_final) ---")
+summary(modelo_completov2)
+
+```
 
 
 
+Si comparamos el modelo final con el inicial podemos ver como el coeficiente de SexoMujer se ve incrementado de $-6472$ a $-6709.35$.  
+Esto sucede al no controlar la variable años de antiguedad entre otras posible causas:  
 
+1. Evidencia de Alta Discriminación Residual: La brecha de $-6709.35$ es la diferencia salarial media entre hombres y mujeres que poseen exactamente el mismo perfil objetivo (misma antigüedad, jornada, nivel de estudios y cualificación ocupacional).
 
+2. Implicación Inusual: El hecho de que la brecha ajustada sea mayor que la bruta sugiere que, en promedio, las mujeres en la muestra podrían tener características (como la antigüedad o un nivel de estudios superior) que, en un modelo sin el factor "Sexo", les darían una prima salarial. Sin embargo, esta ventaja es negada por la penalización del factor "Sexo".  
+
+En cambio si nos centramos en la Brecha salarial por Nacionalidad tenemos que se reduce significativamente dicha brecha,  pasa de ser una penalización significativa de $-5547$ (los extranjeros ganan menos) a una prima positiva de $+1331.59$.  
+
+1. Brecha Explicada por Capital Humano: La gran diferencia negativa en el modelo inicial era una brecha bruta. Esto significa que los trabajadores de nacionalidad "Otra" tenían, en promedio, características que penalizan fuertemente el salario (ej. menor antigüedad reconocida, concentración en ocupaciones de menor remuneración o estudios no convalidados...
+
+2.  Al incluir los factores de control ($\text{ANOANTI}$, $\text{ESTU}$, $\text{CNO1\_grp}$), estas características que penalizaban el salario son absorbidas por el modelo. Una vez que se comparan trabajadores de idéntico perfil objetivo (un español vs. un extranjero con la misma antigüedad y ocupación), la nacionalidad "Otra" está asociada a una prima de $1331.59$ euros.
+
+__NOTA:__ Es importante resaltar que esta prima de $+1331.59$ es solo marginalmente no significativa a $\alpha=0.05$ (ya que $p = 0.0573$). Esto sugiere que, mientras que el factor de nacionalidad ya no es una desventaja salarial ajustada, la ventaja es demasiado débil para afirmarla con alta confianza estadística.
 
 
 
