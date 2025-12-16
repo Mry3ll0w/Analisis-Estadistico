@@ -9,6 +9,7 @@ output: html_document
 library(dplyr)
 library(corrplot)
 library(car) # Funcion VIF
+library(ggplot2)
 ```
 
 ## 1 Regresión Lineal 
@@ -332,13 +333,82 @@ En cambio si nos centramos en la Brecha salarial por Nacionalidad tenemos que se
 
 2.  Al incluir los factores de control ($\text{ANOANTI}$, $\text{ESTU}$, $\text{CNO1\_grp}$), estas características que penalizaban el salario son absorbidas por el modelo. Una vez que se comparan trabajadores de idéntico perfil objetivo (un español vs. un extranjero con la misma antigüedad y ocupación), la nacionalidad "Otra" está asociada a una prima de $1331.59$ euros.
 
-__NOTA:__ Es importante resaltar que esta prima de $+1331.59$ es solo marginalmente no significativa a $\alpha=0.05$ (ya que $p = 0.0573$). Esto sugiere que, mientras que el factor de nacionalidad ya no es una desventaja salarial ajustada, la ventaja es demasiado débil para afirmarla con alta confianza estadística.
+__NOTA:__ Es importante resaltar que esta prima de $+1331.59$ es solo marginalmente no significativa a $\alpha=0.05$ (ya que $p = 0.0573$). Esto sugiere que, mientras que el factor de nacionalidad ya no es una desventaja salarial ajustada, la ventaja es demasiado débil para afirmarla con alta confianza estadística.  
 
 
 
+### 1.8 Diagnosis del modelo 
+
+```{r, echo=TRUE}
+
+# 1. Gráfico de Residuos vs. Valores Ajustados
+plot(modelo_completov2, which = 1)
+```
+  
+  
+En el primer gráfico (Residual vs Fitted) estudiaremos la homocedasticidad de los datos, pudiendo sacar las siguientes conclusiones:  
+
+1. Se observa un claro patrón de "embudo" o "abanico". Conforme aumentan los valores ajustados (el salario predicho), la dispersión de los residuos se hace mayor, especialmente por la presencia de valores muy altos en la parte superior derecha.
+
+2. Existe heterocedasticidad, debido a que la varianza de los errores no es constante, lo que indica que el modelo es mucho más preciso para predecir salarios bajos y medios que para capturar la variabilidad de los salarios más altos.
 
 
+```{r, echo=TRUE}
 
+# 2. Gráfico Q-Q de Normalidad
+plot(modelo_completov2, which = 2)
+
+```
+  
+Si nos centramos en los valores del segundo gráfico (Q-Q Residuals) extraemos lo siguiente:  
+
+1. Este compara los cuantiles de los residuos estandarizados con los de una distribución normal teórica.
+
+2. Los puntos se desvían drásticamente de la línea discontinua en el extremo derecho (cuantiles teóricos superiores a 2). Se identifican observaciones de valores atípicos extremos, como las etiquetadas con los números 26350, 22249 y 45370.
+
+3. Los residuos no siguen una distribución normal. Presentan una fuerte asimetría positiva (poseen una cola pesada a la derecha), causada por individuos con salarios excepcionalmente altos que el modelo no logra explicar totalmente con las variables actuales.
+
+
+### 1.9 Predicción del modelo
+
+Usaremos el modelo final para la realización de este apartado ya que es el más completo.  
+
+```{r,echo=TRUE}
+# 1. Realizar predicciones sobre el conjunto test
+predicciones <- predict(modelo_completov2, newdata = test)
+
+# Damos X= 0 y pendiente de 1 (Valor predicho será igual al observado)
+ggplot(data = test, aes(x = predicciones, y = RETRINOIN)) +
+  geom_point(alpha = 0.5, color = "darkblue") +
+  geom_abline(intercept = 0, slope = 1, color = "red", linetype = "dashed") +
+  labs(title = "Valores Predichos vs. Valores Observados (Test Set)",
+       x = "Salario Predicho",
+       y = "Salario Observado") 
+```
+  
+Con respecto al la representación gráfica podemos destacar lo siguiente:
+
+1. Línea Roja Discontinua: Representa el escenario ideal donde la predicción coincide exactamente con el valor real ($y = x$). A mayor cercanía de los puntos de esta línea, más preciso es el modelo.
+
+2. Distribución de los Puntos: Se observa una mayor densidad de puntos azules concentrados en torno a la línea roja para salarios bajos y medios (entre 10,000 y 40,000 euros aproximadamente). Esto indica que el modelo tiene una capacidad predictiva aceptable para el grueso de la muestra laboral.
+
+3. Desviación en Salarios Altos: A partir de los 40,000 euros predichos, los puntos observados comienzan a dispersarse significativamente hacia arriba de la línea roja.
+
+
+```{r, echo=TRUE}
+
+
+# 2. Calcular el error (Observado - Predicho)
+errores <- test$RETRINOIN - predicciones
+
+rmse_valor <- sqrt(mean(errores^2, na.rm = TRUE))
+print(paste("RMSE del modelo final:", round(rmse_valor, 2)))
+
+```
+
+Como podemos apreciar el RMSE nos da que las predicciones de los valores reales en las mismas unidades que la variable dependiente es de $13205.36$ euros.  
+
+Este se ve fuertemente influenciado por estas grandes desviaciones en los salarios elevados, por tanto podemos concluir que el modelo explica bien las tendencias generales y las brechas de género o nacionalidad, tiene dificultades para predecir con exactitud salarios en los niveles ejecutivos o de alta dirección.
 
 
 
