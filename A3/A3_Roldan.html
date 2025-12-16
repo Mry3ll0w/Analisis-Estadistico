@@ -1021,6 +1021,52 @@ tiene dificultades para predecir con exactitud salarios en los niveles
 ejecutivos o de alta dirección.</p>
 </div>
 </div>
+<div id="regresión-logística" class="section level1">
+<h1>2 Regresión Logística</h1>
+<div id="preparación-de-los-datos-binarización" class="section level3">
+<h3>2.1 Preparación de los datos (Binarización)</h3>
+<pre class="r"><code># 1. Comenzamos con el calculo de la mediana global del salario anual neto
+mediana_salario &lt;- median(salariosDataSet$RETRINOIN, na.rm = TRUE)
+
+# 2. Crear la variable binaria &#39;SalarioAlto&#39;
+# 1 si es superior a la mediana, 0 en caso contrario
+salariosDataSet$SalarioAlto &lt;- ifelse(salariosDataSet$RETRINOIN &gt; mediana_salario, 1, 0)
+
+# 3. Convertir a factor 
+
+salariosDataSet$SalarioAlto &lt;- factor(salariosDataSet$SalarioAlto, 
+                                      levels = c(0, 1), 
+                                      labels = c(&quot;No Alto&quot;, &quot;Alto&quot;))
+
+# 4. Verificamos que tenemos exactamente a 50/50 los datos 
+table(salariosDataSet$SalarioAlto)</code></pre>
+<pre><code>## 
+## No Alto    Alto 
+##    5000    5000</code></pre>
+<pre class="r"><code># 5. Aplicamos ahora la division entre train y test (similar al modelo 1.4)
+
+tamano_train &lt;- floor(0.80 * nrow(salariosDataSet))
+
+# seleccionamos los índices de las filas que irán a &#39;train&#39;
+indices_train &lt;- sample(seq_len(nrow(salariosDataSet)), size = tamano_train)
+
+# --- 2. Separar los conjuntos de datos ---
+
+train &lt;- salariosDataSet[indices_train, ]
+
+test &lt;- salariosDataSet[-indices_train, ]
+# Verificamos de nuevo
+print(paste(&quot;Tamaño total:&quot;, nrow(salariosDataSet)))</code></pre>
+<pre><code>## [1] &quot;Tamaño total: 10000&quot;</code></pre>
+<pre class="r"><code>print(paste(&quot;Tamaño train (80%):&quot;, nrow(train)))</code></pre>
+<pre><code>## [1] &quot;Tamaño train (80%): 8000&quot;</code></pre>
+<pre class="r"><code>print(paste(&quot;Tamaño test (20%):&quot;, nrow(test)))</code></pre>
+<pre><code>## [1] &quot;Tamaño test (20%): 2000&quot;</code></pre>
+</div>
+<div id="section" class="section level3">
+<h3>2.2</h3>
+</div>
+</div>
 
 
 

@@ -412,6 +412,66 @@ Este se ve fuertemente influenciado por estas grandes desviaciones en los salari
 
 
 
+# 2 Regresión Logística
+
+### 2.1 Preparación de los datos (Binarización)
+
+```{r,echo=TRUE}
+
+# 1. Comenzamos con el calculo de la mediana global del salario anual neto
+mediana_salario <- median(salariosDataSet$RETRINOIN, na.rm = TRUE)
+
+# 2. Crear la variable binaria 'SalarioAlto'
+# 1 si es superior a la mediana, 0 en caso contrario
+salariosDataSet$SalarioAlto <- ifelse(salariosDataSet$RETRINOIN > mediana_salario, 1, 0)
+
+# 3. Convertir a factor 
+
+salariosDataSet$SalarioAlto <- factor(salariosDataSet$SalarioAlto, 
+                                      levels = c(0, 1), 
+                                      labels = c("No Alto", "Alto"))
+
+# 4. Verificamos que tenemos exactamente a 50/50 los datos 
+table(salariosDataSet$SalarioAlto)
+
+# 5. Aplicamos ahora la division entre train y test (similar al modelo 1.4)
+
+tamano_train <- floor(0.80 * nrow(salariosDataSet))
+
+# seleccionamos los índices de las filas que irán a 'train'
+indices_train <- sample(seq_len(nrow(salariosDataSet)), size = tamano_train)
+
+# --- 2. Separar los conjuntos de datos ---
+
+train <- salariosDataSet[indices_train, ]
+
+test <- salariosDataSet[-indices_train, ]
+# Verificamos de nuevo
+print(paste("Tamaño total:", nrow(salariosDataSet)))
+print(paste("Tamaño train (80%):", nrow(train)))
+print(paste("Tamaño test (20%):", nrow(test)))
+
+```
+
+### 2.2 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
