@@ -516,16 +516,67 @@ Ateniendonos a la tabla de OR mostrada anteriormente concluyo:
 - CNO1_grp: Los grupos de Baja Cualificación ($0.254$) son un factor de riesgo muy fuerte, ya que reduce las probabilidades en un $75%$ aproximadamente.
 
 
+### 2.4. Matriz de confusión
 
 
+```{r, echo=TRUE}
+# 1. Obtener probabilidades en el conjunto test
+probabilidades <- predict(modelo_logistico_v2, newdata = test, type = "response")
+
+# 2. Aplicar el punto de corte de 0.5
+predicciones_clase <- ifelse(probabilidades > 0.5, "Alto", "No Alto")
+
+# 3. Convertir a factor con los mismos niveles que la variable original
+predicciones_clase <- factor(predicciones_clase, levels = c("No Alto", "Alto"))
+
+# 4. Crear la Matriz de Confusión
+matriz <- table(Real = test$SalarioAlto, Predicho = predicciones_clase)
+
+# 5. Mejoras visuales de la matriz
+# Convertir tu matriz en un data frame para ggplot
+matriz_df <- as.data.frame(matriz)
+
+ggplot(data = matriz_df, aes(x = Predicho, y = Real, fill = Freq)) +
+  geom_tile(color = "white") +
+  geom_text(aes(label = Freq), vjust = 1, size = 4, color = "white") +
+  scale_fill_gradient(high = "#EB9573", low = "#B5E3AC") +
+  labs(title = "Matriz de Confusión: Predicción de Salario Alto",
+       subtitle = "Punto de corte = 0.5",
+       x = "Predicción del Modelo",
+       y = "Valor Real (Test Set)") +
+  theme_minimal()
+
+```
+  
+  
+Basandonos en lo mostrado por la matriz de confusión podemos afirmar lo siguiente:  
+
+1. __Aciertos (Diagonal Principal):__ El modelo identificó correctamente a 793 personas con salario "No Alto" (Verdaderos Negativos) y a 479 con salario "Alto" (Verdaderos Positivos).
 
 
+2. __Errores (Fuera de la diagonal):__
+
+- 165 Falsos Positivos: Personas que el modelo predijo con salario alto, pero no lo tienen.
+
+- 240 Falsos Negativos: El modelo "perdió" a estas personas que realmente ganan mucho. Esto coincide con la tendencia del modelo a infravalorar los ingresos más altos vista en los gráficos de residuos.
 
 
+Procedemos ahora a calcular las Métricas de Precisión:  
+
+1. __Exactitud__: 
+- $Total = 793 + 165 + 240 + 479 = 1677$ 
+- $Aciertos = (793 + 479)/1677 = 0.758$
+- El modelo acierta el $\approx 76%\%$ de las clasificaciones.
 
 
+2. __Sensibilidad__:
 
+- $Sensibilidad = 479 / (479 + 165) = 0.667$
+- El modelo es capaz de detectar al 66.6% de los que ganan mucho.
 
+3. __Especifidad__:
+- $Especifidad = 793 / (793+165) = 0.828$
+El modelo es muy bueno (82.8%) identificando a quienes no tienen salarios altos.
 
 
 
