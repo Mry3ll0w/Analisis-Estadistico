@@ -10,6 +10,7 @@ library(dplyr)
 library(corrplot)
 library(car) # Funcion VIF
 library(ggplot2)
+library(pROC)
 ```
 
 ## 1 Regresión Lineal 
@@ -604,9 +605,36 @@ print(tabla_final)
 
 ### 2.6 Bondad del ajuste y curva ROC
 
+```{r, echo=TRUE}
 
+# Cálculo diferencia de devianzas
+dif_devianza <- modelo_logistico_v2$null.deviance - modelo_logistico_v2$deviance
 
+# Diferencia grados de libertad
+dif_df <- modelo_logistico_v2$df.null - modelo_logistico_v2$df.residual
 
+# p-valor
+p_valor_global <- pchisq(dif_devianza, df = dif_df, lower.tail = FALSE)
+
+print(p_valor_global)
+
+```
+Con esto echazamos la hipótesis nula de que el modelo no aporta nada. El conjunto de variables explicativas tiene un efecto real y potente sobre la probabilidad de tener un salario alto.
+Por tanto se concluye que el conjunto de variables (SEXO, ESTU, ANOANTI, etc.) explica la probabilidad de tener un salario alto de forma mucho más eficaz que el simple azar o el promedio.  
+
+```{r,echo=TRUE}
+
+curva_roc <- roc(test$SalarioAlto, probabilidades)
+
+# Dibujar la curva
+plot(curva_roc, col = "#2c3e50", lwd = 3, main = "Curva ROC del Modelo Logístico")
+abline(a = 0, b = 1, lty = 2, col = "red") # Línea de referencia (azar)
+
+# Calcular el AUC
+auc_resultado <- auc(curva_roc)
+print(auc_resultado)
+
+```
 
 
 
