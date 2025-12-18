@@ -438,12 +438,14 @@ head(salariosDataSet,5)</code></pre>
   # 2. RECODIFICACIÓN ESPECÍFICA DE CNACE (Actividad Económica)
  
   CNACE = case_when(
-   # Nivel 1: B, C, D, E, F
-   CNACE %in% c(&quot;B&quot;, &quot;C&quot;, &quot;D&quot;, &quot;E&quot;, &quot;F&quot;) ~ &quot;1. Industria y Construcción&quot;,
-   # Nivel 2: O, P, Q
-   CNACE %in% c(&quot;O&quot;, &quot;P&quot;, &quot;Q&quot;) ~ &quot;2. Servicios Públicos Clave&quot;,
-   # Nivel 3: El resto
-   TRUE ~ &quot;3. Otros Servicios y Actividades&quot;
+  # Extraemos el primer carácter y comparamos
+    substr(CNACE, 1, 1) %in% c(&quot;B&quot;, &quot;C&quot;, &quot;D&quot;, &quot;E&quot;, &quot;F&quot;) ~ &quot;1. Industria y Construcción&quot;,
+    
+    # Nivel 2: O, P, Q
+    substr(CNACE, 1, 1) %in% c(&quot;O&quot;, &quot;P&quot;, &quot;Q&quot;) ~ &quot;2. Servicios Públicos Clave&quot;,
+    
+    # Nivel 3: El resto (como G1, H2, J0, M0, etc.)
+    TRUE ~ &quot;3. Otros Servicios y Actividades&quot;
   ),
 
   # Creamos la nueva variable
@@ -1063,8 +1065,133 @@ print(paste(&quot;Tamaño total:&quot;, nrow(salariosDataSet)))</code></pre>
 <pre class="r"><code>print(paste(&quot;Tamaño test (20%):&quot;, nrow(test)))</code></pre>
 <pre><code>## [1] &quot;Tamaño test (20%): 2000&quot;</code></pre>
 </div>
-<div id="section" class="section level3">
-<h3>2.2</h3>
+<div id="estimación-del-modelo-de-regresión-logística" class="section level3">
+<h3>2.2 Estimación del modelo de regresión logística</h3>
+<pre class="r"><code># Usaremos GLM ya que la variable Salario Alto es categorica.
+
+
+salariosDataSet$TIPOCON &lt;- factor(salariosDataSet$TIPOCON, 
+                                      levels = c(1, 2), 
+                                      labels = c(&quot;INDEFINIDO&quot;, &quot;DETERMINADO&quot;))
+
+modelo_logistico_base &lt;- glm(SalarioAlto ~ SEXO + ANOANTI + JAP + ESTU + 
+                             TIPOCON  +CNACE_grp+ CNO1_grp + TIPOPAIS, 
+                             data = train, 
+                             family = binomial)
+
+# Visualización del resumen estadístico
+summary(modelo_logistico_base)</code></pre>
+<pre><code>## 
+## Call:
+## glm(formula = SalarioAlto ~ SEXO + ANOANTI + JAP + ESTU + TIPOCON + 
+##     CNACE_grp + CNO1_grp + TIPOPAIS, family = binomial, data = train)
+## 
+## Coefficients:
+##                                               Estimate Std. Error z value
+## (Intercept)                                 -5.4107774  0.6638365  -8.151
+## SEXOMujer                                   -1.1495707  0.0705504 -16.294
+## ANOANTI                                      0.0945984  0.0035349  26.761
+## JAP                                          0.0026821  0.0001738  15.433
+## ESTU2. Primaria Completa                     1.2806470  0.5515967   2.322
+## ESTU3. Secundaria 1ª Etapa (E.S.O.)          1.4304106  0.5493928   2.604
+## ESTU4. Secundaria 2ª Etapa (Bachillerato)    1.9945037  0.5503077   3.624
+## ESTU5. Formación Profesional                 2.5237500  0.5538542   4.557
+## ESTU6. Estudios Superiores                   3.0987355  0.5576539   5.557
+## TIPOCON                                     -0.4105348  0.1147160  -3.579
+## CNACE_grp2. Servicios Públicos Clave        -0.2112999  0.1091647  -1.936
+## CNACE_grp3. Otros Servicios y Actividades   -0.7492250  0.0775021  -9.667
+## CNO1_grp2. Cualificación Media              -0.8839837  0.1248656  -7.079
+## CNO1_grp3. Baja Cualificación y Elementales -1.3659970  0.1452566  -9.404
+## TIPOPAISOtra                                -0.1565786  0.1234052  -1.269
+##                                             Pr(&gt;|z|)    
+## (Intercept)                                 3.62e-16 ***
+## SEXOMujer                                    &lt; 2e-16 ***
+## ANOANTI                                      &lt; 2e-16 ***
+## JAP                                          &lt; 2e-16 ***
+## ESTU2. Primaria Completa                    0.020249 *  
+## ESTU3. Secundaria 1ª Etapa (E.S.O.)         0.009224 ** 
+## ESTU4. Secundaria 2ª Etapa (Bachillerato)   0.000290 ***
+## ESTU5. Formación Profesional                5.20e-06 ***
+## ESTU6. Estudios Superiores                  2.75e-08 ***
+## TIPOCON                                     0.000345 ***
+## CNACE_grp2. Servicios Públicos Clave        0.052916 .  
+## CNACE_grp3. Otros Servicios y Actividades    &lt; 2e-16 ***
+## CNO1_grp2. Cualificación Media              1.45e-12 ***
+## CNO1_grp3. Baja Cualificación y Elementales  &lt; 2e-16 ***
+## TIPOPAISOtra                                0.204506    
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## (Dispersion parameter for binomial family taken to be 1)
+## 
+##     Null deviance: 9211.6  on 6711  degrees of freedom
+## Residual deviance: 6480.4  on 6697  degrees of freedom
+##   (1288 observations deleted due to missingness)
+## AIC: 6510.4
+## 
+## Number of Fisher Scoring iterations: 6</code></pre>
+<p>Con respecto a los resultados mostrados podemos determinar las
+siguientes variables a eliminar:</p>
+<ol style="list-style-type: decimal">
+<li><p>TIPOPAIS: El pvalor mostrado en el grafico es de 0.20 siendo 4
+veces mayor al tolerable <span class="math inline">\(\alpha=0.05\)</span>, por lo que se puede concluir
+que no tiene significancai en el modelo.</p></li>
+<li><p>CNACE_grp: A pesar de superar el nivel de tolerancia permitida,
+este se ve superado por un limite casi minimo <span class="math inline">\(0.0529\)</span>, y solo ocurre en uno de los
+niveles de la categoria por lo que decido considero necesario mantenerla
+en el estudio.</p></li>
+</ol>
+</div>
+<div id="cálculo-de-las-or-odds-ratio" class="section level3">
+<h3>2.3 Cálculo de las OR (Odds-Ratio)</h3>
+<pre class="r"><code>#OR = e^bi
+modelo_logistico_v2 &lt;- glm(SalarioAlto ~ SEXO + ANOANTI + JAP + ESTU + 
+                             TIPOCON  +CNACE_grp+ CNO1_grp , 
+                             data = train, 
+                             family = binomial)
+
+# Creo la tabla usando cbind para mostrar ambas columnas a la vez
+OR_TABLE &lt;- exp(cbind(OR = coefficients(modelo_logistico_v2), 
+                      confint(modelo_logistico_v2)))</code></pre>
+<pre><code>## Waiting for profiling to be done...</code></pre>
+<pre class="r"><code>colnames(OR_TABLE) &lt;- c(&quot;Odds Ratio&quot;, &quot;IC 2.5%&quot;, &quot;IC 97.5%&quot;)
+# Para verlo en pantalla redondeado
+round(OR_TABLE, 3)</code></pre>
+<pre><code>##                                             Odds Ratio IC 2.5% IC 97.5%
+## (Intercept)                                      0.004   0.001    0.015
+## SEXOMujer                                        0.317   0.275    0.363
+## ANOANTI                                          1.100   1.093    1.108
+## JAP                                              1.003   1.002    1.003
+## ESTU2. Primaria Completa                         3.602   1.338   12.021
+## ESTU3. Secundaria 1ª Etapa (E.S.O.)              4.227   1.578   14.058
+## ESTU4. Secundaria 2ª Etapa (Bachillerato)        7.434   2.770   24.764
+## ESTU5. Formación Profesional                    12.687   4.690   42.498
+## ESTU6. Estudios Superiores                      22.506   8.250   75.868
+## TIPOCON                                          0.663   0.529    0.829
+## CNACE_grp2. Servicios Públicos Clave             0.810   0.654    1.004
+## CNACE_grp3. Otros Servicios y Actividades        0.471   0.404    0.547
+## CNO1_grp2. Cualificación Media                   0.413   0.323    0.527
+## CNO1_grp3. Baja Cualificación y Elementales      0.254   0.191    0.338</code></pre>
+<p>Ateniendonos a la tabla de OR mostrada anteriormente concluyo:</p>
+<ol style="list-style-type: decimal">
+<li><strong>Factores de Riesgo</strong> (OR &lt; 1): estas variables
+aumentan nuestras posibilidades de tener un sueldo alto:<br />
+</li>
+</ol>
+<ul>
+<li>Estudios superiores: Nos dan un <span class="math inline">\(22.51\)</span> más de posibilidades de exito.</li>
+<li>Estudios superiores: Nos dan un <span class="math inline">\(12.69\)</span> más de posibilidades de exito.</li>
+</ul>
+<ol start="2" style="list-style-type: decimal">
+<li><strong>Factores de Protección</strong> (OR &gt;1): Son variables
+que disminuyen nuestras posibilidades de tener un sueld alto:</li>
+</ol>
+<ul>
+<li><p>Sexo Mujer: Ser mujer reduce las probabilidades de tener un
+salario alto a casi un tercio de las que tiene un hombre.</p></li>
+<li><p>CNO1_grp: Los grupos de Baja Cualificación (<span class="math inline">\(0.254\)</span>) son un factor de riesgo muy
+fuerte, ya que reduce las probabilidades en un <span class="math inline">\(75%\)</span> aproximadamente.</p></li>
+</ul>
 </div>
 </div>
 

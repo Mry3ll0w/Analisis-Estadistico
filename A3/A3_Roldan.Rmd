@@ -59,12 +59,14 @@ salariosDataSet <- salariosDataSet %>%
   # 2. RECODIFICACIÓN ESPECÍFICA DE CNACE (Actividad Económica)
  
   CNACE = case_when(
-   # Nivel 1: B, C, D, E, F
-   CNACE %in% c("B", "C", "D", "E", "F") ~ "1. Industria y Construcción",
-   # Nivel 2: O, P, Q
-   CNACE %in% c("O", "P", "Q") ~ "2. Servicios Públicos Clave",
-   # Nivel 3: El resto
-   TRUE ~ "3. Otros Servicios y Actividades"
+  # Extraemos el primer carácter y comparamos
+    substr(CNACE, 1, 1) %in% c("B", "C", "D", "E", "F") ~ "1. Industria y Construcción",
+    
+    # Nivel 2: O, P, Q
+    substr(CNACE, 1, 1) %in% c("O", "P", "Q") ~ "2. Servicios Públicos Clave",
+    
+    # Nivel 3: El resto (como G1, H2, J0, M0, etc.)
+    TRUE ~ "3. Otros Servicios y Actividades"
   ),
 
   # Creamos la nueva variable
@@ -453,9 +455,65 @@ print(paste("Tamaño test (20%):", nrow(test)))
 
 ```
 
-### 2.2 
+### 2.2 Estimación del modelo de regresión logística
+
+```{r,echo=TRUE}
+# Usaremos GLM ya que la variable Salario Alto es categorica.
 
 
+salariosDataSet$TIPOCON <- factor(salariosDataSet$TIPOCON, 
+                                      levels = c(1, 2), 
+                                      labels = c("INDEFINIDO", "DETERMINADO"))
+
+modelo_logistico_base <- glm(SalarioAlto ~ SEXO + ANOANTI + JAP + ESTU + 
+                             TIPOCON  +CNACE_grp+ CNO1_grp + TIPOPAIS, 
+                             data = train, 
+                             family = binomial)
+
+# Visualización del resumen estadístico
+summary(modelo_logistico_base)
+
+
+```
+Con respecto a los resultados mostrados podemos determinar las siguientes variables a eliminar:
+
+1. TIPOPAIS: El pvalor mostrado en el grafico es de 0.20 siendo 4 veces mayor al tolerable $\alpha=0.05$, por lo que se puede concluir que no tiene significancai en el modelo.
+
+2. CNACE_grp: A pesar de superar el nivel de tolerancia permitida, este se ve superado por un limite casi minimo $0.0529$, y solo ocurre en uno de los niveles de la categoria por lo que decido considero necesario mantenerla en el estudio.
+
+
+
+### 2.3 Cálculo de las OR (Odds-Ratio)
+
+```{r,echo=TRUE}
+
+#OR = e^bi
+modelo_logistico_v2 <- glm(SalarioAlto ~ SEXO + ANOANTI + JAP + ESTU + 
+                             TIPOCON  +CNACE_grp+ CNO1_grp , 
+                             data = train, 
+                             family = binomial)
+
+# Creo la tabla usando cbind para mostrar ambas columnas a la vez
+OR_TABLE <- exp(cbind(OR = coefficients(modelo_logistico_v2), 
+                      confint(modelo_logistico_v2)))
+colnames(OR_TABLE) <- c("Odds Ratio", "IC 2.5%", "IC 97.5%")
+# Para verlo en pantalla redondeado
+round(OR_TABLE, 3)
+
+```
+
+Ateniendonos a la tabla de OR mostrada anteriormente concluyo: 
+
+1. __Factores de Riesgo__ (OR < 1): estas variables aumentan nuestras posibilidades de tener un sueldo alto:   
+- Estudios superiores: Nos dan un $22.51$ más de posibilidades de exito.
+- Estudios superiores: Nos dan un $12.69$ más de posibilidades de exito.
+
+2. __Factores de Protección__ (OR >1): Son variables que disminuyen nuestras posibilidades de tener un sueld alto:
+
+
+- Sexo Mujer: Ser mujer reduce las probabilidades de tener un salario alto a casi un tercio de las que tiene un hombre.
+
+- CNO1_grp: Los grupos de Baja Cualificación ($0.254$) son un factor de riesgo muy fuerte, ya que reduce las probabilidades en un $75%$ aproximadamente.
 
 
 
