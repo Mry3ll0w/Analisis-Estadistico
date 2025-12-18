@@ -11,6 +11,7 @@ library(corrplot)
 library(car) # Funcion VIF
 library(ggplot2)
 library(pROC)
+library(knitr)
 ```
 
 ## 1 Regresión Lineal 
@@ -627,21 +628,39 @@ Por tanto se concluye que el conjunto de variables (SEXO, ESTU, ANOANTI, etc.) e
 curva_roc <- roc(test$SalarioAlto, probabilidades)
 
 # Dibujar la curva
-plot(curva_roc, col = "#2c3e50", lwd = 3, main = "Curva ROC del Modelo Logístico")
-abline(a = 0, b = 1, lty = 2, col = "red") # Línea de referencia (azar)
-
+plot(curva_roc)
 # Calcular el AUC
 auc_resultado <- auc(curva_roc)
 print(auc_resultado)
 
 ```
 
+### 3. Resumen ejecutivo y Reflexión Ética
+
+### 3.1. Tabla Resumen
+
+```{r, echo=FALSE, include=TRUE}
 
 
+resumen_resultados <- data.frame(
+  Pregunta = c("Determinantes", "Brecha Género", "Ocupación", "Fiabilidad", "Detección"),
+  Estadistico = c("OR ESTU6: 22.5", "OR Mujer: 0.317", "OR CNO3: 0.254", "Exactitud: 75.8%", "Sensibilidad: 66.6%"),
+  Conclusion = c("Educación es el mayor protector", "Penalización femenina severa", "Baja cualificación es riesgo", "Modelo robusto y significativo", "Mejor prediciendo salarios bajos")
+)
+
+kable(resumen_resultados, caption = "Resumen de Resultados del Modelo Logístico")
+
+```
 
 
+Aunque el modelo presenta una eficacia global excelente y una alta capacidad discriminatoria ($AUC$ robusto), su mayor precisión para identificar salarios bajos sugiere la existencia de variables no observadas que influyen en la movilidad hacia los niveles de renta más elevados.
+
+### 3.2. Conclusiones y Reflexión Ética
 
 
+El estudio revela que la desigualdad salarial es un fenómeno complejo que no puede explicarse solo por la formación o la experiencia. Al comparar el modelo lineal simple con el múltiple, observamos que la brecha "bruta" inicial se reduce al incluir variables como el nivel educativo o la antigüedad, dando lugar a la brecha "ajustada". Sin embargo, incluso tras este ajuste, ser mujer sigue siendo un factor de riesgo que reduce las probabilidades de éxito salarial en un 68.3%.
+
+Existen limitaciones críticas: los modelos no capturan variables como los cuidados no remunerados, la discriminación directa o las habilidades específicas. Además, usar el "sexo registrado" es una aproximación limitada del género. Éticamente, esto implica que la brecha detectada es solo la "punta del iceberg"; el modelo confirma una penalización estadística injustificada, pero los sesgos de los datos podrían estar infravalorando la magnitud real de la segregación laboral.
 
 
 
