@@ -579,6 +579,31 @@ Procedemos ahora a calcular las Métricas de Precisión:
 El modelo es muy bueno (82.8%) identificando a quienes no tienen salarios altos.
 
 
+### 2.5. Predicción
+
+```{r, echo=TRUE}
+# 1. Probabilidades calculadas para el test
+prob_test <- predict(modelo_logistico_v2, newdata = test, type = "response")
+
+# 2. Añadir la probabilidad al conjunto test para poder visualizarla
+test_con_prob <- cbind(test, Probabilidad = prob_test)
+
+# 3. Ordenar de mayor a menor probabilidad y seleccionar los 5 primeros
+top_5_perfiles <- test_con_prob[order(-test_con_prob$Probabilidad), ]
+top_5_perfiles <- head(top_5_perfiles, 5)
+
+# 4. Seleccionar las columnas clave para la tabla
+columnas_interes <- c("SEXO", "ESTU", "ANOANTI", "JAP", "CNO1_grp", "Probabilidad")
+tabla_final <- top_5_perfiles[, columnas_interes]
+
+# Mostrar tabla
+print(tabla_final)
+
+
+```
+
+### 2.6 Bondad del ajuste y curva ROC
+
 
 
 

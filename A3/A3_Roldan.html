@@ -1267,6 +1267,37 @@ residuos.</p></li>
 tienen salarios altos.</li>
 </ul>
 </div>
+<div id="predicción" class="section level3">
+<h3>2.5. Predicción</h3>
+<pre class="r"><code># 1. Asegurarnos de tener las probabilidades calculadas para el test
+prob_test &lt;- predict(modelo_logistico_v2, newdata = test, type = &quot;response&quot;)
+
+# 2. Añadir la probabilidad al conjunto test para poder visualizarla
+test_con_prob &lt;- cbind(test, Probabilidad = prob_test)
+
+# 3. Ordenar de mayor a menor probabilidad y seleccionar los 5 primeros
+top_5_perfiles &lt;- test_con_prob[order(-test_con_prob$Probabilidad), ]
+top_5_perfiles &lt;- head(top_5_perfiles, 5)
+
+# 4. Seleccionar las columnas clave para la tabla
+columnas_interes &lt;- c(&quot;SEXO&quot;, &quot;ESTU&quot;, &quot;ANOANTI&quot;, &quot;JAP&quot;, &quot;CNO1_grp&quot;, &quot;Probabilidad&quot;)
+tabla_final &lt;- top_5_perfiles[, columnas_interes]
+
+# Mostrar tabla
+print(tabla_final)</code></pre>
+<pre><code>##        SEXO                   ESTU ANOANTI  JAP
+## 1773 Hombre 6. Estudios Superiores      38 1592
+## 9400 Hombre 6. Estudios Superiores      38 1495
+## 9569 Hombre 6. Estudios Superiores      33 1633
+## 1264 Hombre 6. Estudios Superiores      36 1670
+## 6080 Hombre 6. Estudios Superiores      28 1840
+##                               CNO1_grp Probabilidad
+## 1773 1. Dirección y Alta Cualificación    0.9929509
+## 9400 1. Dirección y Alta Cualificación    0.9908779
+## 9569 1. Dirección y Alta Cualificación    0.9898601
+## 1264            2. Cualificación Media    0.9865212
+## 6080 1. Dirección y Alta Cualificación    0.9839448</code></pre>
+</div>
 </div>
 
 
