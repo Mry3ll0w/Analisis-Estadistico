@@ -106,6 +106,79 @@ cat("Altura - Ausentes:", na_height, "| Atípicos:", out_height)
 ```
 
 
+## 2. Estadística inferencial
+
+
+### 2.1.1. Hipótesis nula y Alternativa
+
+Dada la pregunta: ¿Podemos aceptar que los hombres queman en promedio más calorías en los entrenamientos que las mujeres?   
+
+Podemos plantear lo siguiente:  
+$H_0: \mu_{hombres} = \mu_{mujeres}$ (La media de calorías quemadas es igual en ambos grupos).  
+$H_1: \mu_{hombres} > \mu_{mujeres}$ (La media de calorías en hombres es mayor que en mujeres).
+
+
+### 2.1.2. Justificación del test a aplicar
+
+Dado que se va a realizar un test estadistico entre medias de muestras independientes, además desconocemos
+las covarianza poblacional, por tanto usaremos la covarianza muestral y un t-test.  
+
+### 2.1.3 Cálculos
+
+```{r, echo=TRUE}
+
+# Calculo manual
+
+# Separamos los grupos
+hombres <- dataSet$Calories[dataSet$Gender == "Male"]
+mujeres <- dataSet$Calories[dataSet$Gender == "Female"]
+
+# Estadísticos
+n1 <- length(hombres); n2 <- length(mujeres)
+m1 <- mean(hombres);   m2 <- mean(mujeres)
+s1 <- sd(hombres);     s2 <- sd(mujeres)
+
+# Calculo del estadístico de contraste
+
+se_diff <- sqrt((s1^2 / n1) + (s2^2 / n2))
+
+# Estadístico t observado
+t_obs <- (m1 - m2) / se_diff
+
+# Aplicamos test de welch
+
+df_welch <- ((s1^2/n1 + s2^2/n2)^2) / ((s1^2/n1)^2/(n1-1) + (s2^2/n2)^2/(n2-1))
+
+# Valor Crítico (cola a la derecha)
+t_critico <- qt(0.975, df = df_welch)
+
+# P-valor
+
+p_valor <- pt(t_obs, df = df_welch, lower.tail = FALSE)
+
+# Resultados
+cat("T-Critico manual:", t_critico,"\n","T-observado manual:", t_obs, "\n","P-valor manual:    ", p_valor, "\n")
+
+# Calculo automatico
+resultado_auto <- t.test(Calories ~ Gender, data = dataSet, 
+                         alternative = "greater", 
+                         conf.level = 0.975)
+print(resultado_auto)
+
+```
+
+### 2.1.4. Interpretación del test
+
+Por tanto podemos concluir que si nos centramos en el T-observado (0.514) podemos ver como no supera al t-critico (1.96), en consecuencia no podemos rechazar la hipótesis nula (H0).  
+
+En cuanto al p-valor, tenemos que el valor observado es 0.304 por lo que supera al nivel de significación haciendo que no podamos rechazar la hipótesis nula.
+
+En consecuencia no podemos rechazar que la media de calorias quemadas por ambos grupos durante el transcurso de un ejercicio es aproximadamente igual en promedio, con un 97.5 % de confianza.
+
+
+
+
+
 
 
 

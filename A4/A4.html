@@ -473,6 +473,91 @@ cat(&quot;Altura - Ausentes:&quot;, na_height, &quot;| Atípicos:&quot;, out_hei
 <pre><code>## Altura - Ausentes: 0 | Atípicos: 0</code></pre>
 </div>
 </div>
+<div id="estadística-inferencial" class="section level2">
+<h2>2. Estadística inferencial</h2>
+<div id="hipótesis-nula-y-alternativa" class="section level3">
+<h3>2.1.1. Hipótesis nula y Alternativa</h3>
+<p>Dada la pregunta: ¿Podemos aceptar que los hombres queman en promedio
+más calorías en los entrenamientos que las mujeres?</p>
+<p>Podemos plantear lo siguiente:<br />
+<span class="math inline">\(H_0: \mu_{hombres} = \mu_{mujeres}\)</span>
+(La media de calorías quemadas es igual en ambos grupos).<br />
+<span class="math inline">\(H_1: \mu_{hombres} &gt;
+\mu_{mujeres}\)</span> (La media de calorías en hombres es mayor que en
+mujeres).</p>
+</div>
+<div id="justificación-del-test-a-aplicar" class="section level3">
+<h3>2.1.2. Justificación del test a aplicar</h3>
+<p>Dado que se va a realizar un test estadistico entre medias de
+muestras independientes, además desconocemos las covarianza poblacional,
+por tanto usaremos la covarianza muestral y un t-test.</p>
+</div>
+<div id="cálculos" class="section level3">
+<h3>2.1.3 Cálculos</h3>
+<pre class="r"><code># Calculo manual
+
+# Separamos los grupos
+hombres &lt;- dataSet$Calories[dataSet$Gender == &quot;Male&quot;]
+mujeres &lt;- dataSet$Calories[dataSet$Gender == &quot;Female&quot;]
+
+# Estadísticos
+n1 &lt;- length(hombres); n2 &lt;- length(mujeres)
+m1 &lt;- mean(hombres);   m2 &lt;- mean(mujeres)
+s1 &lt;- sd(hombres);     s2 &lt;- sd(mujeres)
+
+# Calculo del estadístico de contraste
+
+se_diff &lt;- sqrt((s1^2 / n1) + (s2^2 / n2))
+
+# Estadístico t observado
+t_obs &lt;- (m1 - m2) / se_diff
+
+# Aplicamos test de welch
+
+df_welch &lt;- ((s1^2/n1 + s2^2/n2)^2) / ((s1^2/n1)^2/(n1-1) + (s2^2/n2)^2/(n2-1))
+
+# Valor Crítico (cola a la derecha)
+t_critico &lt;- qt(0.975, df = df_welch)
+
+# P-valor
+
+p_valor &lt;- pt(t_obs, df = df_welch, lower.tail = FALSE)
+
+# Resultados
+cat(&quot;T-Critico manual:&quot;, t_critico,&quot;\n&quot;,&quot;T-observado manual:&quot;, t_obs, &quot;\n&quot;,&quot;P-valor manual:    &quot;, p_valor, &quot;\n&quot;)</code></pre>
+<pre><code>## T-Critico manual: 1.960083 
+##  T-observado manual: 0.5141114 
+##  P-valor manual:     0.3035899</code></pre>
+<pre class="r"><code># Calculo automatico
+resultado_auto &lt;- t.test(Calories ~ Gender, data = dataSet, 
+                         alternative = &quot;greater&quot;, 
+                         conf.level = 0.975)
+print(resultado_auto)</code></pre>
+<pre><code>## 
+##  Welch Two Sample t-test
+## 
+## data:  Calories by Gender
+## t = -0.51411, df = 19998, p-value = 0.6964
+## alternative hypothesis: true difference in means between group Female and group Male is greater than 0
+## 97.5 percent confidence interval:
+##  -18.96137       Inf
+## sample estimates:
+## mean in group Female   mean in group Male 
+##             2022.454             2026.394</code></pre>
+</div>
+<div id="interpretación-del-test" class="section level3">
+<h3>2.1.4. Interpretación del test</h3>
+<p>Por tanto podemos concluir que si nos centramos en el T-observado
+(0.514) podemos ver como no supera al t-critico (1.96), en consecuencia
+no podemos rechazar la hipótesis nula (H0).</p>
+<p>En cuanto al p-valor, tenemos que el valor observado es 0.304 por lo
+que supera al nivel de significación haciendo que no podamos rechazar la
+hipótesis nula.</p>
+<p>En consecuencia no podemos rechazar que la media de calorias quemadas
+por ambos grupos durante el transcurso de un ejercicio es
+aproximadamente igual en promedio, con un 97.5 % de confianza.</p>
+</div>
+</div>
 </div>
 
 
