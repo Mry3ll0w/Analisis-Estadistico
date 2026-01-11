@@ -41,12 +41,90 @@ names(dataSet)
 # Comprobamos tipos de variables (con glympse, glimpse(dataSet))
 # Se puede percibir que la columna Weight..kg. es incorrecta (marcada como character)
 
-#dataSet <- dataSet %>%
-#  mutate(`Weight..kg.` = `Weight..kg.` %>%
-#           # 2. Quitar cualquier cosa que no sea número o punto
-#           str_replace_all("[^0-9.]", "") %>%
-#           # 3. Convertir a numérico
-#           as.numeric()
-#  )
+# Weight
+dataSet <- dataSet %>%
+  mutate(
+    # Aseguramos que sea texto para limpiar, quitamos espacios
+    Weight_kg = str_to_lower(as.character(Weight_kg)),
+    
+    # Si contiene "b para aplicar la conversión
+    Weight_kg = case_when(
+      str_detect(Weight_kg, "lb") ~ as.numeric(str_extract(Weight_kg, "[0-9.]+")) / 2.20,
+      TRUE ~ as.numeric(str_extract(Weight_kg, "[0-9.]+"))
+    )
+  )
+# Comprobamos datos
+head(dataSet$Weight_kg)
+
+# Height
+dataSet <- dataSet %>%
+  mutate(
+    Height_m = str_to_lower(as.character(Height_m)),
+    
+    # Si contiene feet (') o inches (")
+    Height_m = case_when(
+      str_detect(Height_m, "'|\"|ft|in") ~ {
+        # Extraemos todos los números encontrados
+        numeros <- str_extract_all(Height_m, "[0-9.]+")
+        # El primero son pies, el segundo pulgadas
+        pies <- as.numeric(sapply(numeros, function(x) x[1]))
+        pulgadas <- as.numeric(sapply(numeros, function(x) ifelse(length(x) > 1, x[2], 0)))
+        # Convertimos: (pies * 12 + pulgadas) / 39.37
+        (pies * 12 + pulgadas) / 39.37
+      },
+      # Si es numérico o solo necesita conversión de pulgadas a metros
+      TRUE ~ as.numeric(str_extract(Height_m, "[0-9.]+"))
+    )
+  )
+
+# Comprobamos datos
+head(dataSet$Height_m)
+
 ```
+
+
+### Valores Ausentes y Atípicos
+```{r,echo=TRUE}
+# Weight
+
+# Valores Ausentes
+na_weight <- sum(is.na(dataSet$Weight_kg))
+
+# Valores Atípicos 
+out_weight <- length(boxplot.stats(dataSet$Weight_kg)$out)
+
+cat("Peso - Ausentes:", na_weight, "| Atípicos:", out_weight)
+
+# Height
+na_height <- sum(is.na(dataSet$Height_m))
+
+# Valores Atípicos
+out_height <- length(boxplot.stats(dataSet$Height_m)$out)
+
+cat("Altura - Ausentes:", na_height, "| Atípicos:", out_height)
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
