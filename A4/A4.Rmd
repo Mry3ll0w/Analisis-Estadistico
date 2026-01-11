@@ -1,0 +1,52 @@
+---
+title: "A4"
+author: "Antonio Roldan Andrade"
+date: "2026-01-11"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(dplyr)
+library(stringr)
+```
+
+# Actividad 4
+
+## 1. Preprocesamiento
+
+### 1.1 Nombres de las variables
+
+```{r, echo=TRUE}
+
+# Comenzamos por la carga del diccionario CSV
+csv_location <- "Findata.csv"
+dataSet <- read.csv(csv_location, sep = ",")
+
+# Realizamos las modificaciones pertinentes de los nombres: 
+dataSet <- dataSet %>%
+  rename_with(~ 
+                str_remove(., "\\.+$") %>% # Elimina los puntos al final nombres de variables
+                str_replace_all(., "\\.+", "_") %>% # Sustituye los puntos dentro por _
+                str_replace_all("__+", "_") # Si hay dos puntos seguidos, reemplazadlos por un único guion bajo.
+                
+              )
+# Comprobamos 
+names(dataSet)
+
+```
+
+### 1.2 Variables Weight_kg y Height_m
+```{r, echo=TRUE}
+# Comprobamos tipos de variables (con glympse, glimpse(dataSet))
+# Se puede percibir que la columna Weight..kg. es incorrecta (marcada como character)
+
+#dataSet <- dataSet %>%
+#  mutate(`Weight..kg.` = `Weight..kg.` %>%
+#           # 2. Quitar cualquier cosa que no sea número o punto
+#           str_replace_all("[^0-9.]", "") %>%
+#           # 3. Convertir a numérico
+#           as.numeric()
+#  )
+```
+
