@@ -234,9 +234,9 @@ corrplot(matriz_cor, method = "color", addCoef.col = "black",
 
 Como podemos apreciar en la matriz podemos apreciar cierto nivel de correlación positiva:
 
-1. Experiencia de entrenamiento - Duración de la actvidad  
-2. Experiencia de entrenamiento - Días de entrenamiento por semana  
-3. Días de entrenamiento por semana - Duración de la actvidad  
+1. **Experiencia de entrenamiento - Duración de la actvidad **
+2. **Experiencia de entrenamiento - Días de entrenamiento por semana**
+3. **Días de entrenamiento por semana - Duración de la actvidad **
 
 Aunque tenemos cierto nivel de correlación podemos apreciar que no se trata en ningún caso de unas correlaciones altas.
 
@@ -280,13 +280,37 @@ Con respecto al gráfico Q-Q apreciamos como los datos presentan una forma de "S
 Por tanto se puede determinar que a pesar de que las variables eran muy significativas, el modelo de regresión lineal simple no es el adecuado para estos datos.
 
 
+### 3.4. Regresión logística
+
+
+```{r,echo=TRUE}
+
+# 1. Crear la variable binaria: 1 si es principiante, 0 si no lo es
+dataSet <- dataSet %>%
+  mutate(Is_Beginner = ifelse(Experience_Level == 1, 1, 0))
+
+# 2. Ajustar el modelo
+modelo_logistico <- glm(Is_Beginner ~ Calories + Session_Duration_hours + 
+                        Workout_Frequency_days_week + Height_m + Weight_kg + 
+                        Gender + Workout_Type, 
+                        data = dataSet, 
+                        family = binomial)
+
+summary(modelo_logistico)
+
+```
+
+Al observar la columna Pr(>|z|), vemos que solo hay dos variables que tienen un impacto estadísticamente significativo en la probabilidad de ser principiante:
+
+- **Session_Duration_hours** (p-valor < 2e-16): Es altamente significativa. Su coeficiente es negativo (-3.20), lo que indica que a medida que aumenta la duración de la sesión, la probabilidad de ser una persona sin experiencia disminuye drásticamente.
+
+- **Workout_Frequency_days_week** (p-valor < 2e-16): También es altamente significativa. Su coeficiente es negativo (-1.80), sugiriendo que cuantos más días a la semana entrena una persona, menor es la probabilidad de que sea clasificada como principiante.  
+
+En cuanto a la calidad del modelo podemos decir que el modelo ha reducido la devianza en casi un 43% ($1 - 15786/27579$). Siendo una reducción muy considerable, lo cual indica que el modelo tiene una buena capacidad discriminatoria. Las variables elegidas (especialmente frecuencia y duración) explican muy bien la pertenencia al grupo de principiantes.
 
 
 
-
-
-
-
+### 3.5. Matriz de confusión
 
 
 

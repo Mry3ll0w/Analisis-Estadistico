@@ -645,12 +645,12 @@ corrplot(matriz_cor, method = &quot;color&quot;, addCoef.col = &quot;black&quot;
 <p>Como podemos apreciar en la matriz podemos apreciar cierto nivel de
 correlación positiva:</p>
 <ol style="list-style-type: decimal">
-<li>Experiencia de entrenamiento - Duración de la actvidad<br />
-</li>
-<li>Experiencia de entrenamiento - Días de entrenamiento por
-semana<br />
-</li>
-<li>Días de entrenamiento por semana - Duración de la actvidad</li>
+<li><strong>Experiencia de entrenamiento - Duración de la actvidad
+</strong></li>
+<li><strong>Experiencia de entrenamiento - Días de entrenamiento por
+semana</strong></li>
+<li><strong>Días de entrenamiento por semana - Duración de la actvidad
+</strong></li>
 </ol>
 <p>Aunque tenemos cierto nivel de correlación podemos apreciar que no se
 trata en ningún caso de unas correlaciones altas.</p>
@@ -703,6 +703,73 @@ bimodal.</p>
 <p>Por tanto se puede determinar que a pesar de que las variables eran
 muy significativas, el modelo de regresión lineal simple no es el
 adecuado para estos datos.</p>
+<div id="regresión-logística" class="section level3">
+<h3>3.4. Regresión logística</h3>
+<pre class="r"><code># 1. Crear la variable binaria: 1 si es principiante, 0 si no lo es
+dataSet &lt;- dataSet %&gt;%
+  mutate(Is_Beginner = ifelse(Experience_Level == 1, 1, 0))
+
+# 2. Ajustar el modelo
+modelo_logistico &lt;- glm(Is_Beginner ~ Calories + Session_Duration_hours + 
+                        Workout_Frequency_days_week + Height_m + Weight_kg + 
+                        Gender + Workout_Type, 
+                        data = dataSet, 
+                        family = binomial)
+
+summary(modelo_logistico)</code></pre>
+<pre><code>## 
+## Call:
+## glm(formula = Is_Beginner ~ Calories + Session_Duration_hours + 
+##     Workout_Frequency_days_week + Height_m + Weight_kg + Gender + 
+##     Workout_Type, family = binomial, data = dataSet)
+## 
+## Coefficients:
+##                               Estimate Std. Error z value Pr(&gt;|z|)    
+## (Intercept)                 10.9294260  0.3186029  34.304   &lt;2e-16 ***
+## Calories                    -0.0002661  0.0001947  -1.367    0.172    
+## Session_Duration_hours      -3.2076236  0.0945883 -33.911   &lt;2e-16 ***
+## Workout_Frequency_days_week -1.8060422  0.0340062 -53.109   &lt;2e-16 ***
+## Height_m                    -0.2157027  0.1673842  -1.289    0.198    
+## Weight_kg                    0.0031231  0.0049700   0.628    0.530    
+## GenderMale                   0.0077481  0.0397465   0.195    0.845    
+## Workout_TypeHIIT            -0.0867855  0.0563172  -1.541    0.123    
+## Workout_TypeStrength        -0.0311174  0.0562154  -0.554    0.580    
+## Workout_TypeYoga             0.0586174  0.0565149   1.037    0.300    
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## (Dispersion parameter for binomial family taken to be 1)
+## 
+##     Null deviance: 27579  on 19999  degrees of freedom
+## Residual deviance: 15786  on 19990  degrees of freedom
+## AIC: 15806
+## 
+## Number of Fisher Scoring iterations: 6</code></pre>
+<p>Al observar la columna Pr(&gt;|z|), vemos que solo hay dos variables
+que tienen un impacto estadísticamente significativo en la probabilidad
+de ser principiante:</p>
+<ul>
+<li><p><strong>Session_Duration_hours</strong> (p-valor &lt; 2e-16): Es
+altamente significativa. Su coeficiente es negativo (-3.20), lo que
+indica que a medida que aumenta la duración de la sesión, la
+probabilidad de ser una persona sin experiencia disminuye
+drásticamente.</p></li>
+<li><p><strong>Workout_Frequency_days_week</strong> (p-valor &lt;
+2e-16): También es altamente significativa. Su coeficiente es negativo
+(-1.80), sugiriendo que cuantos más días a la semana entrena una
+persona, menor es la probabilidad de que sea clasificada como
+principiante.</p></li>
+</ul>
+<p>En cuanto a la calidad del modelo podemos decir que el modelo ha
+reducido la devianza en casi un 43% (<span class="math inline">\(1 -
+15786/27579\)</span>). Siendo una reducción muy considerable, lo cual
+indica que el modelo tiene una buena capacidad discriminatoria. Las
+variables elegidas (especialmente frecuencia y duración) explican muy
+bien la pertenencia al grupo de principiantes.</p>
+</div>
+<div id="matriz-de-confusión" class="section level3">
+<h3>3.5. Matriz de confusión</h3>
+</div>
 </div>
 </div>
 
