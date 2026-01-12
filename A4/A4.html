@@ -769,6 +769,68 @@ bien la pertenencia al grupo de principiantes.</p>
 </div>
 <div id="matriz-de-confusión" class="section level3">
 <h3>3.5. Matriz de confusión</h3>
+<pre class="r"><code># 1. Obtener las probabilidades predichas
+probabilidades &lt;- predict(modelo_logistico, type = &quot;response&quot;)
+
+# 2. Convertir probabilidades en 1 si prob &gt;= 0.5, 0 si no
+predicciones &lt;- factor(ifelse(probabilidades &gt;= 0.5, 1, 0), levels = c(&quot;0&quot;, &quot;1&quot;))
+reales &lt;- factor(dataSet$Is_Beginner, levels = c(&quot;0&quot;, &quot;1&quot;))
+
+# 3. Generar la matriz 
+matriz_resultados &lt;- confusionMatrix(predicciones, reales, positive = &quot;1&quot;)
+print(matriz_resultados)</code></pre>
+<pre><code>## Confusion Matrix and Statistics
+## 
+##           Reference
+## Prediction    0    1
+##          0 6801 1676
+##          1 2343 9180
+##                                           
+##                Accuracy : 0.799           
+##                  95% CI : (0.7934, 0.8046)
+##     No Information Rate : 0.5428          
+##     P-Value [Acc &gt; NIR] : &lt; 2.2e-16       
+##                                           
+##                   Kappa : 0.5928          
+##                                           
+##  Mcnemar&#39;s Test P-Value : &lt; 2.2e-16       
+##                                           
+##             Sensitivity : 0.8456          
+##             Specificity : 0.7438          
+##          Pos Pred Value : 0.7967          
+##          Neg Pred Value : 0.8023          
+##              Prevalence : 0.5428          
+##          Detection Rate : 0.4590          
+##    Detection Prevalence : 0.5762          
+##       Balanced Accuracy : 0.7947          
+##                                           
+##        &#39;Positive&#39; Class : 1               
+## </code></pre>
+<p>La matriz muestra los aciertos y errores del modelo de la siguiente
+manera:</p>
+<ol style="list-style-type: decimal">
+<li><p><strong>Verdaderos Positivos (VP)</strong>: 9,180. El modelo
+identificó correctamente a 9,180 personas que realmente no tienen
+experiencia (Clase 1).</p></li>
+<li><p><strong>Verdaderos Negativos (VN):</strong> 6,801. El modelo
+identificó correctamente a 6,801 personas que sí tienen experiencia
+(Clase 0).</p></li>
+<li><p><strong>Falsos Positivos (FP)</strong>: 2,343. El modelo
+clasificó como principiantes a 2,343 personas que en realidad tienen
+experiencia (Error tipo I).</p></li>
+<li><p><strong>Falsos Negativos (FN)</strong>: 1,676. El modelo
+clasificó como expertos a 1,676 personas que en realidad son
+principiantes (Error tipo II).</p></li>
+</ol>
+<p>En cuanto a sensibilidad y especificidad:</p>
+<ul>
+<li><p><strong>Sensibilidad (0.8456)</strong>: El modelo identifica
+correctamente al 84.56% de todas las personas sin experiencia. Es un
+valor alto, lo que sugiere que el modelo es muy eficaz.</p></li>
+<li><p><strong>Especificidad (0.7438)</strong>: El modelo identifica
+correctamente al 74.38% de las personas con experiencia. Es un valor
+sólido, aunque ligeramente inferior a la sensibilidad.</p></li>
+</ul>
 </div>
 </div>
 </div>

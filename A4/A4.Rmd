@@ -11,6 +11,7 @@ library(dplyr)
 library(stringr)
 library(car)
 library(corrplot)
+library(caret)
 ```
 
 # Actividad 4
@@ -312,10 +313,35 @@ En cuanto a la calidad del modelo podemos decir que el modelo ha reducido la dev
 
 ### 3.5. Matriz de confusión
 
+```{r,echo=TRUE}
+# 1. Obtener las probabilidades predichas
+probabilidades <- predict(modelo_logistico, type = "response")
+
+# 2. Convertir probabilidades en 1 si prob >= 0.5, 0 si no
+predicciones <- factor(ifelse(probabilidades >= 0.5, 1, 0), levels = c("0", "1"))
+reales <- factor(dataSet$Is_Beginner, levels = c("0", "1"))
+
+# 3. Generar la matriz 
+matriz_resultados <- confusionMatrix(predicciones, reales, positive = "1")
+print(matriz_resultados)
+
+```
+La matriz muestra los aciertos y errores del modelo de la siguiente manera:
+
+1. **Verdaderos Positivos (VP)**: 9,180. El modelo identificó correctamente a 9,180 personas que realmente no tienen experiencia (Clase 1).
+
+2. **Verdaderos Negativos (VN):** 6,801. El modelo identificó correctamente a 6,801 personas que sí tienen experiencia (Clase 0).
+
+3. **Falsos Positivos (FP)**: 2,343. El modelo clasificó como principiantes a 2,343 personas que en realidad tienen experiencia (Error tipo I).
+
+4. **Falsos Negativos (FN)**: 1,676. El modelo clasificó como expertos a 1,676 personas que en realidad son principiantes (Error tipo II).
 
 
+En cuanto a sensibilidad y especificidad: 
 
+- **Sensibilidad (0.8456)**: El modelo identifica correctamente al 84.56% de todas las personas sin experiencia. Es un valor alto, lo que sugiere que el modelo es muy eficaz.
 
+- **Especificidad (0.7438)**: El modelo identifica correctamente al 74.38% de las personas con experiencia. Es un valor sólido, aunque ligeramente inferior a la sensibilidad.
 
 
 
