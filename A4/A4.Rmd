@@ -12,6 +12,7 @@ library(stringr)
 library(car)
 library(corrplot)
 library(caret)
+library(ggplot2)
 ```
 
 # Actividad 4
@@ -344,8 +345,55 @@ En cuanto a sensibilidad y especificidad:
 - **Especificidad (0.7438)**: El modelo identifica correctamente al 74.38% de las personas con experiencia. Es un valor sólido, aunque ligeramente inferior a la sensibilidad.
 
 
+## 4. Análisis de la varianza (ANOVA) de un factor
+
+Analizaremos si existen diferencias significativas en la variable Calories_Burned en función
+del tipo de entrenamiento (Workout_Type).
 
 
+### 4.1. Visualización
+
+```{r, echo=TRUE}
+
+ggplot(dataSet, aes(x = Workout_Type, y = Calories, fill = Workout_Type)) +
+  geom_boxplot(alpha = 0.7) +
+  labs(title = "Distribución de Calorías Quemadas por Tipo de Entrenamiento",
+       x = "Tipo de Entrenamiento",
+       y = "Calorías Quemadas") 
+
+```
+
+### 4.2. Hipótesis nula y alternativa
+
+La hipotesis nula establece que no existen difrencias en las medias de las calorías quemadas entre los 
+diferentes entrenamientos.  
+
+La hipotesis alternativa plantea que existe al menos una de las medias de las calorias quemadas que si es 
+diferente de las demas, quedando de la siguiente manera:  
+
+$$H_0: \mu_{\text{Cardio}} = \mu_{\text{HIIT}} = \mu_{\text{Strength}} = \mu_{\text{Yoga}}$$
+$$H_1: \exists \, i, j \text{ tales que } \mu_i \neq \mu_j$$
+
+### 4.3 Modelo
+
+```{r, echo=TRUE}
+
+# Realizamos el ANOVA
+modelo_anova <- aov(Calories ~ Workout_Type, data = dataSet)
+
+# Mostramos la tabla de resultados
+summary(modelo_anova)
+
+```
+
+Comparamos el p-valor con el nivel de significación estándar ($\alpha = 0.05$):  
+
+Puesto que $0.0469 < 0.05$, rechazamos la hipótesis nula ($H_0$) con un nivel de confianza del 95%.  
+
+En consecuencia, podemos decir que existe evidencia estadística suficiente para afirmar que el tipo de entrenamiento influye significativamente en las calorías quemadas. Sin embargo, nota que el p-valor está muy cerca del límite (0.05) y el resultado tiene solo un asterisco (*), lo que sugiere que la diferencia, aunque real, es estadísticamente muy pequeña.
+
+
+### 4.4. Efectos de los niveles del factor
 
 
 
