@@ -980,6 +980,74 @@ diferencia significativa entre el Yoga y el entrenamiento de
 Fuerza.</li>
 </ul>
 </div>
+<div id="normalidad-de-los-residuos" class="section level3">
+<h3>4.6.1. Normalidad de los residuos</h3>
+<p>Justificación teórica en el apartado 4.6.</p>
+<pre class="r"><code># Extraer los residuos del modelo ANOVA
+residuos_anova &lt;- residuals(modelo_anova)
+
+# Ejecutar el test de Anderson-Darling
+ad.test(residuos_anova)</code></pre>
+<pre><code>## 
+##  Anderson-Darling normality test
+## 
+## data:  residuos_anova
+## A = 223.63, p-value &lt; 2.2e-16</code></pre>
+<p>Como podemos apreciar el p-value que nos devuelve nos indica que
+debemos rechazar la <span class="math inline">\(H_0\)</span>: Los datos
+siguen una distribución normal).</p>
+<p>Aunque tengamos este resultado con el p-value podemos seguir usando
+este análisis para la toma de decisiones, puesto que:</p>
+<ul>
+<li><p><strong>Tamaño de muestra</strong> (<span class="math inline">\(n\)</span>): El dataset cuenta con aproximadamente
+20,000 observaciones, lo cual supera con creces el umbral de <span class="math inline">\(n \geq 30\)</span>.</p></li>
+<li><p><strong>Teorema del Límite Central</strong> (TLC): Gracias al
+TLC, la distribución de la media muestral tiende a la normalidad
+independientemente de la distribución de los datos originales.</p></li>
+<li><p><strong>Robustez del ANOVA</strong>: Con una muestra tan grande,
+las desviaciones en la normalidad de los residuos tienen un impacto
+mínimo en la tasa de error tipo I (falsos positivos) del test
+F.</p></li>
+</ul>
+</div>
+<div id="homocedasticidad-de-los-residuos" class="section level3">
+<h3>4.6.2. Homocedasticidad de los residuos</h3>
+<p>Justificación teórica en el apartado 4.6.</p>
+<pre class="r"><code># ANOVA de Welch
+oneway.test(Calories ~ Workout_Type, data = dataSet, var.equal = FALSE)</code></pre>
+<pre><code>## 
+##  One-way analysis of means (not assuming equal variances)
+## 
+## data:  Calories and Workout_Type
+## F = 2.6961, num df = 3, denom df = 11105, p-value = 0.04427</code></pre>
+<p>Tras lo visto en el ANOVA de Welch podemos decir que teniendo como
+resultado <span class="math inline">\(F = 2.6961\)</span>, <span class="math inline">\(p-value = 0.04427\)</span>, esto implica que el
+p-valor es menor a 0.05 lo que indica que existen diferencias
+estadísticamente significativas en las calorías medias quemadas según el
+tipo de entrenamiento.</p>
+<pre class="r"><code># Realizamos el test de Levene 
+
+leveneTest(Calories ~ Workout_Type, data = dataSet)</code></pre>
+<pre><code>## Warning in leveneTest.default(y = y, group = group, ...): group coerced to
+## factor.</code></pre>
+<pre><code>## Levene&#39;s Test for Homogeneity of Variance (center = median)
+##          Df F value Pr(&gt;F)
+## group     3  1.3087 0.2696
+##       19996</code></pre>
+<p>Centrandonos en el test de Levene podemos extraer lo siguiente
+teniendo como resultado <span class="math inline">\(Pr(&gt;F) =
+0.2696\)</span>:</p>
+<ul>
+<li><p>Dado que el p-valor (<span class="math inline">\(0.2696\)</span>)
+es mayor a 0.05, no podemos rechazar la hipótesis nula de igualdad de
+varianzas.</p></li>
+<li><p>A diferencia de lo que sugería la inspección visual inicial,
+estadísticamente existe homocedasticidad, aunque visualmente las
+columnas en los valores ajustados más altos parecen tener una densidad
+de puntos ligeramente distinta, el Test de Levene confirma que la
+amplitud de la dispersión es comparable en todos los grupos.</p></li>
+</ul>
+</div>
 </div>
 </div>
 

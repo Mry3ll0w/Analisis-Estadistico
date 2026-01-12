@@ -14,6 +14,7 @@ library(corrplot)
 library(caret)
 library(ggplot2)
 library(PMCMRplus)
+library(nortest)
 ```
 
 # Actividad 4
@@ -449,18 +450,55 @@ Al observar los p-valores ajustados por el método T2 , vemos que ninguna de las
 - **Yoga vs Strength**  ($p = 0.054$): Esta es la comparación más cercana a la significancia, pero al estar por encima de 0.05, técnicamente se considera que no hay diferencia significativa entre el Yoga y el entrenamiento de Fuerza.
 
 
+### 4.6.1. Normalidad de los residuos
+
+Justificación teórica en el apartado 4.6.
+
+```{r,echo=TRUE}
+
+# Extraer los residuos del modelo ANOVA
+residuos_anova <- residuals(modelo_anova)
+
+# Ejecutar el test de Anderson-Darling
+ad.test(residuos_anova)
+
+```
+
+Como podemos apreciar el p-value que nos devuelve nos indica que debemos rechazar la $H_0$: Los datos siguen una distribución normal).  
+
+Aunque tengamos este resultado con el p-value podemos seguir usando este análisis para la toma de decisiones, puesto que:  
+
+- **Tamaño de muestra** ($n$): El dataset cuenta con aproximadamente 20,000 observaciones, lo cual supera con creces el umbral de $n \geq 30$.  
+
+- **Teorema del Límite Central** (TLC): Gracias al TLC, la distribución de la media muestral tiende a la normalidad independientemente de la distribución de los datos originales.
+
+- **Robustez del ANOVA**: Con una muestra tan grande, las desviaciones en la normalidad de los residuos tienen un impacto mínimo en la tasa de error tipo I (falsos positivos) del test F.
 
 
+### 4.6.2. Homocedasticidad de los residuos
+
+Justificación teórica en el apartado 4.6.  
+
+```{r,echo=TRUE}
+# ANOVA de Welch
+oneway.test(Calories ~ Workout_Type, data = dataSet, var.equal = FALSE)
+
+```
+Tras lo visto en el ANOVA de Welch podemos decir que teniendo como resultado $F = 2.6961$, $p-value = 0.04427$, esto implica que el p-valor es menor a 0.05 lo que indica que existen diferencias estadísticamente significativas en las calorías medias quemadas según el tipo de entrenamiento.
 
 
+```{r,echo=TRUE}
+# Realizamos el test de Levene 
+
+leveneTest(Calories ~ Workout_Type, data = dataSet)
 
 
+```
+Centrandonos en el test de Levene podemos extraer lo siguiente teniendo como resultado $Pr(>F) = 0.2696$:  
 
+- Dado que el p-valor ($0.2696$) es mayor a 0.05, no podemos rechazar la hipótesis nula de igualdad de varianzas.
 
-
-
-
-
+- A diferencia de lo que sugería la inspección visual inicial, estadísticamente existe homocedasticidad, aunque visualmente las columnas en los valores ajustados más altos parecen tener una densidad de puntos ligeramente distinta, el Test de Levene confirma que la amplitud de la dispersión es comparable en todos los grupos.
 
 
 
