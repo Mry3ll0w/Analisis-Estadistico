@@ -13,6 +13,7 @@ library(car)
 library(corrplot)
 library(caret)
 library(ggplot2)
+library(PMCMRplus)
 ```
 
 # Actividad 4
@@ -404,6 +405,109 @@ Basándome en el modelo de regresión lineal múltiple calculado anteriormente h
 - **Workout_TypeYoga**: -297.30 calorías. El Yoga tiene un efecto negativo en la comparación; realizar este tipo de entrenamiento reduce el gasto calórico en 297.30 calorías respecto al Cardio para una sesión de las mismas características.
 
 ### 4.5 Interpretación de los resultados
+
+Los coeficientes  de las variables anteriores tienen un p-valor extremadamente bajo (<2e-16), lo que indica que el tipo de ejercicio es un predictor crítico y estadísticamente significativo del gasto calórico. Aunque el test ANOVA posterior dio un resultado más ajustado (p-valor = 0.0469), eso se debe a que la ANOVA solo mira el tipo de ejercicio de forma aislada, mientras que estos coeficientes muestran el efecto real cuando controlamos factores como la duración de la sesión y la frecuencia.
+
+
+
+### 4.6. Adecuación del modelo
+
+```{r, echo=TRUE}
+
+plot(modelo_anova, which = 1)
+plot(modelo_anova, which = 2)
+
+
+```
+
+Procedemos a la verificacion de los supuestos de normalidad y homoscedasticidad:
+
+- **Homocedasticidad**: La dispersión vertical de los puntos es notablemente diferente entre las columnas. Las columnas en los extremos (especialmente la de la derecha) muestran una dispersión (varianza) de residuos mucho mayor que las columnas centrales. Por tanto, observamos una clara violación del supuesto de homocedasticidad (igualdad de varianzas). Esto sugiere que la variabilidad de las calorías quemadas no es la misma para todos los tipos de entrenamiento, lo que puede afectar la validez del p-valor obtenido en el ANOVA.
+
+
+- **Normal Q-Q**: Los residuos presentan una forma de "S" muy marcada, desviándose de la línea diagonal punteada tanto en los valores bajos como en los altos, en consecuencia podemos decir que existe una fuerte evidencia de no normalidad. Los residuos tienen colas pesadas, lo que indica que la distribución del gasto calórico tiene valores extremos más frecuentes de lo que predeciría una distribución normal.
+
+```{r,echo=TRUE}
+
+# Realizar la prueba T2 de Tamhane
+# 1. Filtrar NAs y asegurar que es un factor (Teniamos un error al existir NA)
+data_clean <- dataSet %>%
+  filter(!is.na(Calories), !is.na(Workout_Type)) %>%
+  mutate(Workout_Type = as.factor(as.character(Workout_Type)))
+
+# 2. Ejecutar la prueba T2 de Tamhane con los datos limpios
+test_tamhane <- tamhaneT2Test(data_clean$Calories, data_clean$Workout_Type)
+
+# 3. Ver resultados
+print(test_tamhane)
+```
+
+Al observar los p-valores ajustados por el método T2 , vemos que ninguna de las comparaciones entre pares es estadísticamente significativa (todos los valores son mayores a 0.05):
+
+- **HIIT vs Cardio** ($p = 1.000$): No hay diferencia alguna entre estos dos grupos.Strength vs Cardio ($p = 0.263$): No hay diferencia significativa.  
+- **Yoga vs Cardio** ($p = 0.989$): No hay diferencia significativa.Strength vs HIIT ($p = 0.168$): No hay diferencia significativa.  
+- **Yoga vs Strength**  ($p = 0.054$): Esta es la comparación más cercana a la significancia, pero al estar por encima de 0.05, técnicamente se considera que no hay diferencia significativa entre el Yoga y el entrenamiento de Fuerza.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
