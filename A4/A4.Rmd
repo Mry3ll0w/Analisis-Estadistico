@@ -395,9 +395,15 @@ En consecuencia, podemos decir que existe evidencia estadística suficiente para
 
 ### 4.4. Efectos de los niveles del factor
 
+Basándome en el modelo de regresión lineal múltiple calculado anteriormente hacemos la siguiente estimación de efectos tomando al Cardio como referencia:  
 
+- **Workout_TypeHIIT**: +451.91 calorías. Este es el efecto más fuerte observado. Realizar un entrenamiento de tipo HIIT incrementa, en promedio, el gasto en 451.91 calorías respecto a un entrenamiento de Cardio, manteniendo constantes el resto de las variables (duración, peso, etc.).  
 
+- **Workout_TypeStrength**: +151.99 calorías. El entrenamiento de fuerza tiene un efecto positivo moderado, sumando 151.99 calorías adicionales en comparación con la categoría de referencia (Cardio).  
 
+- **Workout_TypeYoga**: -297.30 calorías. El Yoga tiene un efecto negativo en la comparación; realizar este tipo de entrenamiento reduce el gasto calórico en 297.30 calorías respecto al Cardio para una sesión de las mismas características.
+
+### 4.5 Interpretación de los resultados
 
 
 
