@@ -9,6 +9,8 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 library(dplyr)
 library(stringr)
+library(car)
+library(corrplot)
 ```
 
 # Actividad 4
@@ -177,13 +179,86 @@ En consecuencia no podemos rechazar que la media de calorias quemadas por ambos 
 
 
 
+## 3. Modelo de regresión
+
+### 3.1. Regresión lineal múltiple
+
+```{r, echo=TRUE}
+# Modelo de regresión lineal múltiple
+modelo_calorias <- lm(Calories_Burned ~ Session_Duration_hours + Experience_Level + 
+                      Workout_Frequency_days_week + Height_m + Weight_kg + 
+                      Gender + Workout_Type, 
+                      data = dataSet)
+
+summary(modelo_calorias)
+
+```
+
+Una vez tenemos los resultados de aplicar la regresión lineal podemos observar como las variables que tienen menor significancia son:  
+
+1. El peso de la persona que esta realizando el entrenamiento.  
+2. El género de la persona.
+
+Por lo que podemos intuir que una vez que conocemos la duración y el tipo de ejercicio, el peso y el género no añaden mucha información extra para predecir las calorías en este dataset.  
+
+Si nos centramos en la calidad del ajuste, podemos observar que el modelo tiene una gran robustez para realizar predicciones ya que:  
+
+1. R Cuadrado es de 0.9635, por lo que las variables seleccionadas explican el 96% de la variabilidad de los datos.  
+
+2. Errores Estándar relativamente bajos comparados con los coeficientes (Estimates), lo que indica precisión en las estimaciones.
+
+
+Por último tenemos la aportación del nivel de experiencia de la persona:  
+
+1. Por cada incremento en una unidad del nivel de experiencia, las calorías quemadas aumentan en promedio 59.07 unidades, manteniendo constantes todas las demás variables (duración, tipo de ejercicio, etc.).  
+
+2. Esto sugiere que un usuario más experimentado es más eficiente o entrena con una intensidad interna mayor que un principiante, logrando quemar más calorías en el mismo tiempo y con la misma frecuencia de entrenamiento.
 
 
 
+### 3.2. Multicolinealidad
+
+```{r,echo=TRUE}
+# Matriz de correlacion
+vars_cuant <- dataSet %>%
+  select(Session_Duration_hours, Workout_Frequency_days_week, Height_m, Weight_kg, Experience_Level)
+
+# Calculamos la matriz
+matriz_cor <- cor(vars_cuant, use = "complete.obs")
+
+# Visualización gráfica
+corrplot(matriz_cor, method = "color", addCoef.col = "black", 
+         type = "upper", tl.col = "black", number.cex = 0.7)
+
+```
+
+Como podemos apreciar en la matriz podemos apreciar cierto nivel de correlación positiva:
+
+1. Experiencia de entrenamiento - Duración de la actvidad  
+2. Experiencia de entrenamiento - Días de entrenamiento por semana  
+3. Días de entrenamiento por semana - Duración de la actvidad  
+
+Aunque tenemos cierto nivel de correlación podemos apreciar que no se trata en ningún caso de unas correlaciones altas.
+
+```{r,echo=TRUE}
+# Matriz VIF
+vif_values <- vif(modelo_calorias)
+
+print(vif_values)
+
+```
+
+Con respecto a la matriz VIF podemos apreciar que no existen problemas relevantes de multicolinealidad puesto
+que todos los valores estan contenidos dentro de una correlación moderada.  
+En conclusión:  
+
+- En la matriz de correlación, aunque se observan relaciones moderadas entre la experiencia y la duración de la sesión (aprox. 0.70), ninguna alcanza niveles críticos (superiores a 0.80). Reforzando este análisis, los resultados de GVIF muestran valores máximos de 2.28, situándose muy por debajo del umbral de riesgo de 5.  
+
+- Por tanto, podemos concluir que no existen problemas de multicolinealidad; las variables explicativas son lo suficientemente independientes para que las estimaciones de los coeficientes del modelo sean fiables y precisas.
 
 
 
-
+## 3.3. Análisis visual de los residuos
 
 
 
