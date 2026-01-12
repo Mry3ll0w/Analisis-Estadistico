@@ -260,6 +260,37 @@ En conclusión:
 
 ## 3.3. Análisis visual de los residuos
 
+```{r,echo=TRUE}
+
+
+plot(modelo_calorias, which =1 )
+
+```
+
+Si nos centramos en el primer gráfico (Residual VS Fitted) podemos apreciar como los datos se distribuyen en forma de curva, por tanto podemos afirmar que existe un problema de no linealidad. Esto indica que la relación entre las calorías y las variables explicativas (como la duración o el peso) no es puramente lineal, o que faltan términos cuadráticos o interacciones en el modelo.  
+
+```{r,echo=TRUE}
+
+
+plot(modelo_calorias, which =2 )
+
+```
+Con respecto al gráfico Q-Q apreciamos como los datos presentan una forma de "S" muy pronunciada, alejándose de la línea diagonal tanto en los extremos como en el centro, en consecuencia, los residuos no siguen una distribución normal. Tienen colas pesadas o una distribución bimodal.  
+
+Por tanto se puede determinar que a pesar de que las variables eran muy significativas, el modelo de regresión lineal simple no es el adecuado para estos datos.
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
