@@ -501,13 +501,45 @@ Centrandonos en el test de Levene podemos extraer lo siguiente teniendo como res
 - A diferencia de lo que sugería la inspección visual inicial, estadísticamente existe homocedasticidad, aunque visualmente las columnas en los valores ajustados más altos parecen tener una densidad de puntos ligeramente distinta, el Test de Levene confirma que la amplitud de la dispersión es comparable en todos los grupos.
 
 
+## 5. ANOVA multifactorial
+
+### 5.1. Crea la variable BIM para mayores de 25 igual a “Alto”
 
 
+```{r, echo=TRUE}
+dataSet$BMI <- dataSet$Weight_kg / (dataSet$Height_m^2)
 
+# 1. Alto (> 25) y 0 para Normal/Bajo (<= 25)
+dataSet$BMI_bin <- ifelse(dataSet$BMI > 25, "Alto", "Normal/Bajo")
 
+# 2. Convertimos a factor para análisis posteriores
+dataSet$BMI_bin <- as.factor(dataSet$BMI_bin)
 
+table(dataSet$BMI_bin)
 
+```
 
+### 5.2. Análisis visual de los efectos principales y posibles interacciones
+
+```{r,echo=TRUE}
+
+# Calculamos medias para el gráfico
+datos_resumen <- dataSet %>%
+  group_by(Workout_Type, BMI_bin) %>%
+  summarise(Mean_Calories = mean(Calories, na.rm = TRUE), .groups = 'drop')
+
+# Generamos el gráfico de interacción
+ggplot(datos_resumen, aes(x = Workout_Type, y = Mean_Calories, color = BMI_bin, group = BMI_bin)) +
+  geom_line(size = 1) +
+  geom_point(size = 3) +
+  labs(title = "Calorías Medias por Entrenamiento y BMI",
+       x = "Tipo de Entrenamiento",
+       y = "Media de Calorías Quemadas",
+       color = "BMI")
+
+```
+
+### 5.3. Hipótesis nula y alternativa
 
 
 
