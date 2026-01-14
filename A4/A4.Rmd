@@ -541,13 +541,34 @@ ggplot(datos_resumen, aes(x = Workout_Type, y = Mean_Calories, color = BMI_bin, 
 
 ### 5.3. Hipótesis nula y alternativa
 
+1. **Hipótesis para el Factor Workout_Type:**  
+- $H_0$: El promedio de calorías quemadas es igual para todos los tipos de entrenamiento.  
+- $H_1$: El promedio de calorías quemadas varía en, al menos, un tipo de entrenamiento.  
 
+2. **Hipótesis para el Factor BMI_bin**:  
+- $H_0$: El promedio de calorías quemadas es igual para personas con BMI Alto y BMI Normal/Bajo.  
+- $H_1$: Existe una diferencia significativa en el promedio de calorías quemadas según el grupo de BMI.  
 
+3. **Hipótesis para la Interacción: Workout_Type - BMI_bin**:  
+- $H_0$: No existe interacción entre el tipo de entrenamiento y el BMI (el efecto del entrenamiento es el mismo para ambos grupos de BMI).  
+- $H_1$: Existe interacción (el efecto del tipo de entrenamiento sobre las calorías depende de si la persona tiene un BMI alto o no).
 
+### 5.4. Cálculo del modelo
 
+```{r,echo=TRUE}
 
+# ANOVA de dos vías con interacción
+modelo_factorial <- aov(Calories ~ Workout_Type * BMI_bin, data = dataSet)
 
+# Resumen de los resultados
+summary(modelo_factorial)
 
+```
+
+El análisis de varianza de dos vías muestra que tanto el tipo de entrenamiento ($p = 0.00339$) como la categoría de BMI ($p < 0.001$) influyen de manera significativa y aislada en el gasto calórico. Siendo el índice de masa corporal es el factor determinante predominante.
+Por otro lado, no se encontró una interacción significativa entre ambos factores ($p = 0.149$), lo que indica que el beneficio calórico de cada tipo de ejercicio es consistente independientemente de si el practicante tiene un BMI alto o normal.
+
+### 5.5. Adecuación del modelo
 
 
 
