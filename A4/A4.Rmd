@@ -175,11 +175,11 @@ print(resultado_auto)
 
 ### 2.1.4. Interpretación del test
 
-Por tanto podemos concluir que si nos centramos en el T-observado (0.514) podemos ver como no supera al t-critico (1.96), en consecuencia no podemos rechazar la hipótesis nula (H0).  
+Por tanto podemos concluir que si nos centramos en el T-observado ($0.514$) podemos ver como no supera al t-critico ($(1.96)$), en consecuencia no podemos rechazar la hipótesis nula (H0).  
 
-En cuanto al p-valor, tenemos que el valor observado es 0.304 por lo que supera al nivel de significación haciendo que no podamos rechazar la hipótesis nula.
+En cuanto al p-valor, tenemos que el valor observado es $0.304$ por lo que supera al nivel de significación haciendo que no podamos rechazar la hipótesis nula.
 
-En consecuencia no podemos rechazar que la media de calorias quemadas por ambos grupos durante el transcurso de un ejercicio es aproximadamente igual en promedio, con un 97.5 % de confianza.
+En consecuencia no podemos rechazar que la media de calorias quemadas por ambos grupos durante el transcurso de un ejercicio es aproximadamente igual en promedio, con un $97.5 %$ de confianza.
 
 
 
@@ -207,14 +207,14 @@ Por lo que podemos intuir que una vez que conocemos la duración y el tipo de ej
 
 Si nos centramos en la calidad del ajuste, podemos observar que el modelo tiene una gran robustez para realizar predicciones ya que:  
 
-1. R Cuadrado es de 0.9635, por lo que las variables seleccionadas explican el 96% de la variabilidad de los datos.  
+1. R Cuadrado es de $0.9635$, por lo que las variables seleccionadas explican el $96%$ de la variabilidad de los datos.  
 
 2. Errores Estándar relativamente bajos comparados con los coeficientes (Estimates), lo que indica precisión en las estimaciones.
 
 
 Por último tenemos la aportación del nivel de experiencia de la persona:  
 
-1. Por cada incremento en una unidad del nivel de experiencia, las calorías quemadas aumentan en promedio 59.07 unidades, manteniendo constantes todas las demás variables (duración, tipo de ejercicio, etc.).  
+1. Por cada incremento en una unidad del nivel de experiencia, las calorías quemadas aumentan en promedio $59.07$ unidades, manteniendo constantes todas las demás variables (duración, tipo de ejercicio, etc.).  
 
 2. Esto sugiere que un usuario más experimentado es más eficiente o entrena con una intensidad interna mayor que un principiante, logrando quemar más calorías en el mismo tiempo y con la misma frecuencia de entrenamiento.
 
@@ -256,7 +256,7 @@ Con respecto a la matriz VIF podemos apreciar que no existen problemas relevante
 que todos los valores estan contenidos dentro de una correlación moderada.  
 En conclusión:  
 
-- En la matriz de correlación, aunque se observan relaciones moderadas entre la experiencia y la duración de la sesión (aprox. 0.70), ninguna alcanza niveles críticos (superiores a 0.80). Reforzando este análisis, los resultados de GVIF muestran valores máximos de 2.28, situándose muy por debajo del umbral de riesgo de 5.  
+- En la matriz de correlación, aunque se observan relaciones moderadas entre la experiencia y la duración de la sesión (aprox. $0.70$), ninguna alcanza niveles críticos (superiores a $0.80$). Reforzando este análisis, los resultados de GVIF muestran valores máximos de 2.28, situándose muy por debajo del umbral de riesgo de 5.  
 
 - Por tanto, podemos concluir que no existen problemas de multicolinealidad; las variables explicativas son lo suficientemente independientes para que las estimaciones de los coeficientes del modelo sean fiables y precisas.
 
@@ -570,15 +570,42 @@ Por otro lado, no se encontró una interacción significativa entre ambos factor
 
 ### 5.5. Adecuación del modelo
 
+Comenzaremos por la comprobación visual: 
+```{r,echo=TRUE}
+
+plot(modelo_factorial, which = 1)
+plot(modelo_factorial, which = 2)
+
+
+leveneTest(Calories ~ Workout_Type * BMI_bin, data = dataSet)
+
+```
+### 5.6. Interpretación de los resultados
+
+- **Residual vs Fitted**: A diferencia del primer ANOVA, donde la dispersión era muy desigual entre grupos, el modelo que incluye el factor BMI_bin muestra una dispersión de residuos más uniforme entre las distintas combinaciones de entrenamiento y masa corporal.
+
+- **Q-Q (Normalidad)**: Al observar el gráfico Q-Q Residuals, los residuos siguen mostrando una forma de "S" con desviaciones en los extremos. Esto indica colas pesadas, confirmando que los errores no son perfectamente normales.
+
+Pasamos ahora a comprobar la **homocedasticidad** mediante el test de Levene: 
+
+Al obtener $Pr(>F) < 2.2e-16$ se rechaza de forma contundente la hipótesis nula de homocedasticidad, en consecuencia podemos afirmar que existe una heterocedasticidad severa cuando consideramos las 8 posibles combinaciones (4 tipos de entrenamiento × 2 niveles de BMI). La variabilidad de las calorías quemadas no es constante, lo que invalida uno de los supuestos fundamentales del ANOVA de dos vías convencional.  
+Esto genera una contradicción con respecto al gráfico visual del ANOVA de una vía veíamos una dispersión que parecía manejable, el test formal para el modelo factorial detecta que al combinar ambos factores, las diferencias de varianza entre grupos explotan.   
+Esto se debe al existir en el test un grupo específico (por ejemplo, HIIT con BMI Alto) que tiene una dispersión de datos muchísimo mayor que otros (como Yoga con BMI Bajo).
 
 
 
+## 6. Conclusiones
 
+1. **Modelo de Regresión Lineal MúltipleEfectos de los factores**: Se identificó que el tipo de entrenamiento tiene un impacto directo en las calorías; el HIIT es el que más suma ($+451.91$), seguido del Strength ($+151.99$), mientras que el Yoga resta respecto al Cardio ($-297.30$).  
+Todos los coeficientes mostraron una alta significancia estadística ($p < 2e-16$), consolidando al tipo de ejercicio como un predictor clave.  
 
+2. **ANOVA de una vía y Comparaciones Post-hoc**: El ANOVA inicial mostró diferencias significativas ($p = 0.0469$), aunque el valor resultó muy cercano al umbral de corte.Prueba de Tamhane: Debido a la falta de homogeneidad de varianza detectada visualmente, se aplicó el test de Tamhane, el cual reveló que no existen diferencias significativas entre pares específicos (como HIIT vs. Cardio, $p = 1.000$). La comparación más cercana a la significancia fue Yoga vs. Strength ($p = 0.054$).  
 
+3. **Análisis de Supuestos de Homocedasticidad**: Aunque inicialmente el test de Levene para el factor ejercicio no fue significativo ($p = 0.2696$), al incluir el BMI en el análisis factorial, la heterocedasticidad se volvió crítica ($p < 2.2e-16$).  
+El gráfico Q-Q mostró una distribución de residuos con colas pesadas (forma de "S"), indicando falta de normalidad, la cual se considera aceptable por la robustez del tamaño de muestra ($n \approx 20,000$).  
 
-
-
+4. **ANOVA de dos vías e Interacción (Workout_Type y BMI_bin)**: Se confirmó que tanto el tipo de entrenamiento ($p = 0.00339$) como el BMI ($p < 2e-16$) influyen significativamente en las calorías. El BMI resultó ser el factor con mayor peso estadístico.  
+No se encontró una interacción significativa ($p = 0.14918$), lo que implica que el efecto del ejercicio no cambia según si la persona tiene un BMI alto o bajo; ambos factores actúan de forma independiente.
 
 
 
